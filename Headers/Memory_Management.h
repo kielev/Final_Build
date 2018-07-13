@@ -61,4 +61,6 @@ void transmission_placeholder_reset(void);
 
 _Bool isMemoryFull(void);
 
+void setMemoryFull(_Bool Status);
+
 #endif /* HEADERS_MEMORY_MANAGEMENT_H_ */

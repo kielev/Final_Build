@@ -63,7 +63,7 @@ volatile _Bool CurrentLocationRequestInitiated = 0; //On the Xbee if the researc
 volatile _Bool NowGetFix = 0; //Another bit for getting the current location of the collar
 volatile char BatteryString[4]; //The value of the calculated battery percentage is stored in here and sent over the PC and Xbee connection
 
-volatile uint8_t VHFStartUpCount = 0; //On startup, this gets incremented and is a "beacon" so they know the collar is on.
+volatile uint8_t VHFSecOnCount = 0; //On startup, this gets incremented and is a "beacon" so they know the collar is on.
 
 //Cool structure I made to store all of the parameters obtained through the UART connection
 typedef struct _Configparameters
@@ -84,14 +84,15 @@ static volatile Configparameters Config;
 //GPS Globals
 volatile char dataString[300]; //Raw characters from the buffer are put in here
 volatile char GPSString[300]; //When something needed to be parsed then it's put in this string
-volatile int index = 0; //Same thing as PC string
+volatile int GPSindex = 0; //Same thing as PC string
 volatile int GPSGo = 0;
 volatile _Bool FixAttemptFailed = 0;
 
 
 //Iridium Globals
-volatile int IridiumGo = 0;
 volatile char IridiumString[300];
+volatile int Iridiumindex = 0;
+volatile int IridiumGo = 0;
 
 //Another structure for the Xbee parameters that are obtained.
 typedef struct _Xbeeparameters
