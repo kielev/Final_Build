@@ -9,6 +9,16 @@
 #include "Headers/General_Setup.h"
 
 
+//update the overall set of configs from a string
+void updateConfigString(char* String){
+
+}
+
+//update the overall set of configs from passing globals
+void updateConfigGlobal(void){
+
+}
+
 void IOSetup(void)
 {
     //This came from here https://e2e.ti.com/support/microcontrollers/msp430/f/166/t/18698

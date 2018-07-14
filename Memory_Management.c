@@ -10,6 +10,11 @@
 volatile _Bool MemoryFull = 0;
 
 
+//Function to pull oldest unsent fixes and assemble a string
+void pullOldFix(char* String, int n){
+
+}
+
 //Saves the current fix into memory and increments the location tracking
 void save_current_fix(void)
 {

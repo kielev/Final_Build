@@ -8,6 +8,16 @@
 #include "Headers/Iridium_Control.h"
 
 
+//Function to send a string of any length up to max
+void sendIridiumString(char* String){
+
+}
+
+//Function to receive an Iridium String
+void receiveIridiumString(char* String){
+
+}
+
 void Iridium_puts(char *outString)
 {
   unsigned int i, len;

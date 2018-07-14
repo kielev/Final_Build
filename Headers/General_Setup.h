@@ -15,6 +15,11 @@
 #ifndef PINSETUP_H_
 #define PINSETUP_H_
 
+//TODO EK 7-14-2018 update the overall set of configs from a string
+void updateConfigString(char* String);
+
+//TODO EK 7-14-2018 update the overall set of configs from passing globals
+void updateConfigGlobal(void);
 
 void IOSetup(void);
 

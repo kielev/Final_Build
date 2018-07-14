@@ -29,6 +29,9 @@ static volatile uint8_t MemPlaceholder[2]; //MemPlaceholder[0] stores position i
 #define HEADERS_MEMORY_MANAGEMENT_H_
 
 
+//TODO EK 7-14-2018 Function to pull oldest unsent fixes and assemble a string
+void pullOldFix(char* String, int n);
+
 //Saves the current fix into memory and increments the location tracking
 void save_current_fix(void);
 

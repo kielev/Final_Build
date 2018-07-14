@@ -14,6 +14,12 @@
 #define HEADERS_IRIDIUM_CONTROL_H_
 
 
+//TODO EK 7-14-2018 Function to send a string of any length up to max
+void sendIridiumString(char* String);
+
+//TODO EK 7-14-2018 Function to receive an Iridium String
+void receiveIridiumString(char* String);
+
 void initIridiumUART(void);
 
 void disableIridiumUART(void);
