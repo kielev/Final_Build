@@ -4,15 +4,14 @@
  *  Created on: Jul 13, 2018
  *      Author: kielev
  */
+#ifndef HEADERS_MEMORY_MANAGEMENT_H_
+#define HEADERS_MEMORY_MANAGEMENT_H_
 
 #include <stdint.h>
 #include <math.h>
 #include "rom_map.h"
 #include "driverlib.h"
 #include "msp432.h"
-
-#ifndef HEADERS_MEMORY_MANAGEMENT_H_
-#define HEADERS_MEMORY_MANAGEMENT_H_
 
 //Where Flash Bank 1 begins
 #define START_LOC 0x00020000

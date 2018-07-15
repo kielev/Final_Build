@@ -12,6 +12,26 @@ volatile _Bool MemoryFull = 0;
 
 //Function to pull oldest unsent fixes and assemble a string
 void pullOldFix(char* String, int n){
+    uint8_t ReadFixCount[2]; //This stores the current sector position and current sector read out from flash
+    String[0] = '\0';
+
+   //Get current memory location
+   ReadFixCount[0] = *(uint8_t*) (0x0003F000);
+   ReadFixCount[1] = *(uint8_t*) (0x0003F001);
+
+   //Compute the offset for the save address
+   unsigned offset = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
+   if(n > (offset/FIX_SIZE))
+   {
+       // don't try to read more than we have stored
+       n = offset/FIX_SIZE;
+   }
+   int i;
+   for(i = 0; i < n; ++i)
+   {
+       readout_fix(i * FIX_SIZE);
+       strcat(String, FixRead);
+   }
 
 }
 
