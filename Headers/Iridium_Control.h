@@ -9,6 +9,7 @@
 #include "driverlib.h"
 #include "msp432.h"
 #include "rom_map.h"
+#include "Headers/General_Setup.h"
 
 #ifndef HEADERS_IRIDIUM_CONTROL_H_
 #define HEADERS_IRIDIUM_CONTROL_H_
