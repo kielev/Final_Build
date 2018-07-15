@@ -11,22 +11,37 @@
 //Function to send a string of any length up to max
 void sendIridiumString(char* String){
     char* IMessage;
+    int x = 0;
 
     Iridium_puts("AT\r");
-    while(strncmp("OK",IridiumString,2) != 0);
+    while(strncmp("OK",IridiumString,2) != 0 && x < 100){
+        Delay1ms(1);
+        x++;
+    }
+    x = 0;
 
     Iridium_puts("AT&K0\r");
     strcpy(IridiumString, "NO");
-    while(strncmp("OK",IridiumString,2) != 0);
+    while(strncmp("OK",IridiumString,2) != 0 && x < 100){
+        Delay1ms(1);
+        x++;
+    }
+    x = 0;
 
     sprintf(IMessage,"AT+SBDWT=%s\r", String);
     Iridium_puts(IMessage);
     strcpy(IridiumString, "NO");
-    while(strncmp("OK",IridiumString,2) != 0 || strncmp("ERROR",IridiumString,5) != 0);
+    while(strncmp("OK",IridiumString,2) != 0 && strncmp("ERROR",IridiumString,5) != 0 && x < 100){
+        Delay1ms(1);
+        x++;
+    }
 
     Iridium_puts("AT+SBDIX\r");
     strcpy(IridiumString, "NO");
-    while(strncmp("+SBDIX",IridiumString,6) != 0);
+    while(strncmp("+SBDIX",IridiumString,6) != 0 && x < 2000){
+        Delay1ms(1);
+        x++;
+    }
 
 }
 

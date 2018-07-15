@@ -26,6 +26,7 @@ static volatile Configparameters Config;
 
 typedef struct _GPSData
 {
+    int FixDate;
     int FixTime;
     float Lat;
     char LatDir;
