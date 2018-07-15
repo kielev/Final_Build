@@ -5,10 +5,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "Headers/General_Setup.h"
-#include "Headers/Globals.h"
-#include "Headers/GPS_Control.h"
 #include "Headers/Iridium_Control.h"
+#include "Headers/Globals.h"
+#include "Headers/General_Setup.h"
+#include "Headers/GPS_Control.h"
 #include "Headers/Memory_Management.h"
 
 int main(void)
@@ -19,7 +19,7 @@ int main(void)
 
     while(1)
     {
-        
+
     }
 }
 

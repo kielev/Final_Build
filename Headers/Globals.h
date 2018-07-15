@@ -4,16 +4,14 @@
  *  Created on: Jul 13, 2018
  *      Author: kielev
  */
+#ifndef HEADERS_GLOBALS_H_
+#define HEADERS_GLOBALS_H_
 
 /* DriverLib Includes */
 #include "driverlib.h"
 #include "msp432.h"
 #include "rom_map.h"
 #include "Headers/Structures.h"
-
-#ifndef HEADERS_GLOBALS_H_
-#define HEADERS_GLOBALS_H_
-
 
 //Status Globals
 //Req is when a request for a device is on, enable is what actually turns on a pin or off. Enables are set by the StateMachine
