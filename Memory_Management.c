@@ -25,7 +25,7 @@ void save_current_fix(void)
     ReadFixCount[1] = *(uint8_t*) (0x0003F001);
 
     //Compute the offset for the save address
-    unsigned offset = (32 * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
+    unsigned offset = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
 
     //Compute the sector address
     unsigned CurSector = pow(2, ReadFixCount[1]);
@@ -36,13 +36,13 @@ void save_current_fix(void)
         FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, CurSector); //unprotect sector
         FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
         FlashCtl_programMemory(CurrentFixSaveString,
-                               (void*) 0x00020000 + offset, 32); //write the data
+                               (void*) 0x00020000 + offset, FIX_SIZE); //write the data
         FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, CurSector); //protect sector
     }
 
     //Update the memory location tracking
     //@NOTE 5-7-2018 128 = num of fixes that can be stored in sector
-    if (FixMemoryLocator[0] < 127)
+    if (FixMemoryLocator[0] < SECTOR_CAPACITY)
     {
         FixMemoryLocator[0]++;
     }
@@ -71,11 +71,11 @@ void save_current_fix(void)
 void readout_fix(unsigned startposition)
 {
     int i = 0;
-    for (i = 0; i < 32; i++)
+    for (i = 0; i < FIX_SIZE; i++)
     {
         FixRead[i] = *(uint8_t*) (i + startposition);
     }
-    FixRead[32] = '\0';
+    FixRead[FIX_SIZE] = '\0';
 }
 
 //Reads out a complete sector given a starting address, see flash address cheat sheet if needed
@@ -101,17 +101,17 @@ void readout_memory_new(void)
     ReadFixCount[1] = *(uint8_t*) (0x0003F001);
 
     //Compute amount of points saved
-    int max = (ReadFixCount[1] * 128) + ReadFixCount[0];
+    int max = (ReadFixCount[1] * SECTOR_CAPACITY) + ReadFixCount[0];
 
     //Get the address that the Xbee left off at last transmission
     ReadPlaceholder[0] = *(uint8_t*) (0x0003E000);
     ReadPlaceholder[1] = *(uint8_t*) (0x0003E001);
 
     //Compute the hexadecimal offset for the readout address
-    unsigned offset = (32 * ReadPlaceholder[0]) + (4096 * ReadPlaceholder[1]);
+    unsigned offset = (FIX_SIZE * ReadPlaceholder[0]) + (4096 * ReadPlaceholder[1]);
 
     //Compute the integer offset for the readout address
-    int offsetInt = (ReadPlaceholder[1] * 128) + ReadPlaceholder[0];
+    int offsetInt = (ReadPlaceholder[1] * SECTOR_CAPACITY) + ReadPlaceholder[0];
 
     //Grab fixes from flash and push them out through the Xbee
     for (i = 0; i < max - offsetInt; i++)
@@ -134,7 +134,7 @@ void readout_last_known_location(void)
     ReadFixCount[1] = *(uint8_t*) (0x0003F001);
 
     //Compute amount of points saved
-    int max = (ReadFixCount[1] * 128) + ReadFixCount[0];
+    int max = (ReadFixCount[1] * SECTOR_CAPACITY) + ReadFixCount[0];
 
     //Grab fixes from flash and push them out through the Xbee
     for (i = max - 1; i > 0; i--)
@@ -161,7 +161,7 @@ void readout_memory_all(void)
     ReadFixCount[1] = *(uint8_t*) (0x0003F001);
 
     //Compute amount of points saved
-    int max = (ReadFixCount[1] * 128) + ReadFixCount[0];
+    int max = (ReadFixCount[1] * SECTOR_CAPACITY) + ReadFixCount[0];
 
     //Grab fixes from flash and push them out through the Xbee or PC
     for (i_1 = 0; i_1 < max; i_1++)

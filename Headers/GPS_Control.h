@@ -16,7 +16,6 @@
 #ifndef HEADERS_GPS_CONTROL_H_
 #define HEADERS_GPS_CONTROL_H_
 
-
 void GPSParse(char *String, GPSDataStruct *GPSData);
 
 void GPS_puts(char *outString);
@@ -24,6 +23,5 @@ void GPS_puts(char *outString);
 void initGPSUART(void);
 
 void disableGPSUART(void);
-
 
 #endif /* HEADERS_GPS_CONTROL_H_ */

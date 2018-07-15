@@ -67,7 +67,6 @@ volatile char BatteryString[4]; //The value of the calculated battery percentage
 volatile uint8_t VHFSecOnCount = 0; //On startup, this gets incremented and is a "beacon" so they know the collar is on.
 
 //Cool structure I made to store all of the parameters obtained through the UART connection
-
 static volatile GPSDataStruct GPSData;
 
 //GPS Globals
@@ -77,13 +76,9 @@ volatile int GPSindex = 0; //Same thing as PC string
 volatile int GPSGo = 0;
 volatile _Bool FixAttemptFailed = 0;
 
-
 //Iridium Globals
 volatile char IridiumString[300];
 volatile int Iridiumindex = 0;
 volatile int IridiumGo = 0;
-
-
-
 
 #endif /* HEADERS_GLOBALS_H_ */
