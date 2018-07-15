@@ -8,6 +8,20 @@
 #include "Headers/GPS_Control.h"
 
 
+void GPSParse(char *String, GPSDataStruct *GPSData){
+    if(!strncmp(&String[3], "GGA", 3)){
+        strtok(String,",");
+        GPSData->FixTime = atoi(strtok(NULL,","));
+        GPSData->Lat = atof(strtok(NULL,","));
+        GPSData->LatDir = *strtok(NULL,",");
+        GPSData->Lon = atof(strtok(NULL,","));
+        GPSData->LonDir = *strtok(NULL,",");
+        GPSData->FixQuality = atoi(strtok(NULL,","));
+        strtok(NULL,",");
+        GPSData->HDOP = atof(strtok(NULL,","));
+    }
+}
+
 void GPS_puts(char *outString)
 {
   unsigned int i, len;

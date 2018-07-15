@@ -16,6 +16,7 @@ int main(void)
     /* Stop Watchdog  */
     MAP_WDT_A_holdTimer();
 
+
     while(1)
     {
         

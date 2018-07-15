@@ -9,6 +9,7 @@
 #include "driverlib.h"
 #include "msp432.h"
 #include "rom_map.h"
+#include "Headers/Structures.h"
 
 #ifndef HEADERS_GLOBALS_H_
 #define HEADERS_GLOBALS_H_
@@ -66,20 +67,8 @@ volatile char BatteryString[4]; //The value of the calculated battery percentage
 volatile uint8_t VHFSecOnCount = 0; //On startup, this gets incremented and is a "beacon" so they know the collar is on.
 
 //Cool structure I made to store all of the parameters obtained through the UART connection
-typedef struct _Configparameters
-{
-    uint8_t COM; //Command program or read (program or read)
-    uint8_t GPS; //GPS sample interval
-    uint8_t WTM; //Wireless transmission mode (confirmed or spew)
-    uint8_t WTD; //Wireless transmission day
-    uint8_t WCT; //Wireless connection start time
-    uint8_t WCW; //Wireless connection window
-    uint8_t VST; //VHF broadcast start time
-    uint8_t VET; //VHF broadcast end time
-    uint8_t DOP; //PDOP Threshold
-    uint8_t GTO; //GPS timeout
-} Configparameters;
-static volatile Configparameters Config;
+
+static volatile GPSDataStruct GPSData;
 
 //GPS Globals
 volatile char dataString[300]; //Raw characters from the buffer are put in here
@@ -94,19 +83,7 @@ volatile char IridiumString[300];
 volatile int Iridiumindex = 0;
 volatile int IridiumGo = 0;
 
-//Another structure for the Xbee parameters that are obtained.
-typedef struct _Xbeeparameters
-{
-    uint8_t Command; //Command read all or since last confirmed connection
-    //1 = all data within flash, 2 = since last confirmed connection
-    int NumRec; //Number of points LabView received consecutively correctly
-    //during wireless download. The collar compares this with the number sent
-    //from flash.  If they match the location for the next time of confirmed
-    //connection is moved up.
-    uint8_t CurLocReq; //Command while the device has low battery life to request
-//for the current GPS location of the device. 1 = get location, 0 = no action
 
-} Xbeeparameters;
 
 
 #endif /* HEADERS_GLOBALS_H_ */
