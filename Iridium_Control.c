@@ -9,7 +9,7 @@
 
 
 //Function to send a string of any length up to max
-void sendIridiumString(char* String){
+int sendIridiumString(char* String){
     char* IMessage;
     int x = 0;
 
