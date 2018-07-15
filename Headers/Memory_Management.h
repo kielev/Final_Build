@@ -11,6 +11,9 @@
 #include "driverlib.h"
 #include "msp432.h"
 
+#ifndef HEADERS_MEMORY_MANAGEMENT_H_
+#define HEADERS_MEMORY_MANAGEMENT_H_
+
 //Where Flash Bank 1 begins
 #define START_LOC 0x00020000
 
@@ -24,10 +27,6 @@ static volatile uint8_t FixMemoryLocator[2]; //FixMemoryLocator[0] stores positi
 //FixMemoryLocator[1] stores the current sector, range 0-31.
 static volatile uint8_t MemPlaceholder[2]; //MemPlaceholder[0] stores position in the readout sector, range 0-128. //??
 //MemPlaceholder[1] stores the readout sector, range 0-31
-
-#ifndef HEADERS_MEMORY_MANAGEMENT_H_
-#define HEADERS_MEMORY_MANAGEMENT_H_
-
 
 //TODO EK 7-14-2018 Function to pull oldest unsent fixes and assemble a string
 void pullOldFix(char* String, int n);
