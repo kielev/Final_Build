@@ -41,7 +41,7 @@ extern volatile uint8_t IridiumRXData; //These are where the characters obtained
 extern volatile uint8_t GPSRXData;
 
 //PC Hardwire Globals
-volatile char PCdataString[99]; //Puts the characters from the buffer into the string and increments so we can get more than one character
+volatile char ParameterString[99]; //Puts the characters from the buffer into the string and increments so we can get more than one character
 //at a time and get a useful message
 volatile char PCString[99]; //Puts the raw string from the buffer into a new location for parsing. Gets updated when the PCdataString has a complete string.
 extern volatile int PCindex; //Increments within the string and puts the characters in and increments to the next position

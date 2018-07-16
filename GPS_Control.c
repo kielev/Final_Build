@@ -9,7 +9,10 @@
 
 
 void GPSParse(char *String, GPSDataStruct *GPSData){
+    char timeString[20];
     if(!strncmp(&String[3], "GGA", 3)){
+        sprintf(timeString, "%d%d%d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
+        GPSData->FixDate = atoi(timeString);
         strtok(String,",");
         GPSData->FixTime = atoi(strtok(NULL,","));
         GPSData->Lat = atof(strtok(NULL,","));

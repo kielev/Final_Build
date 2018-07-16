@@ -13,8 +13,10 @@
 #include "msp432.h"
 #include "rom_map.h"
 #include "Headers/Structures.h"
+#include "Headers/Globals.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 void GPSParse(char *String, GPSDataStruct *GPSData);
 
