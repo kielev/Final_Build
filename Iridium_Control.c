@@ -35,6 +35,7 @@ int sendIridiumString(char* String){
         Delay1ms(1);
         x++;
     }
+    x = 0;
 
     Iridium_puts("AT+SBDIX\r");
     strcpy(IridiumString, "NO");
@@ -42,7 +43,22 @@ int sendIridiumString(char* String){
         Delay1ms(1);
         x++;
     }
+    x = 0;
 
+    if(!strncmp(&IridiumString[14],"1",1)){
+        Iridium_puts("AT+SBDRT\r");
+        strcpy(IridiumString, "NO");
+        while(strncmp("+SBDRT",IridiumString,6) != 0 && x < 2000){
+            Delay1ms(1);
+            x++;
+        }
+        x=0;
+        while(strncmp("$",IridiumString,1) != 0){
+            Delay1ms(1);
+            x++;
+        }
+        strcpy(ParameterString, IridiumString);
+    }
 }
 
 //Function to receive an Iridium String
