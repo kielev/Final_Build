@@ -15,6 +15,9 @@
 #ifndef PINSETUP_H_
 #define PINSETUP_H_
 
+//TODO EK 7-16-2018 overall function for control of program returns true for sleep or false to run again
+_Bool checkControlConditions(void);
+
 //TODO EK 7-14-2018 update the overall set of configs from a string
 void updateConfigString(char* String);
 

@@ -16,10 +16,20 @@ int main(void)
     /* Stop Watchdog  */
     MAP_WDT_A_holdTimer();
 
+    IOSetup();
+
+    initClocks();
+
+    RTC_setup();
+
+    MAP_WDT_A_startTimer();
 
     while(1)
     {
-
+        if(checkControlConditions()){
+            MAP_PCM_enableRudeMode();
+            MAP_PCM_gotoLPM3();
+        }
     }
 }
 
@@ -36,42 +46,37 @@ void RTC_C_IRQHandler(void)
     if (status & RTC_C_TIME_EVENT_INTERRUPT)
     {
         // Interrupts every hour or minute based on state of program
-
-        //Every minute interrupt handling
-        if (MinInt == 1)
-        {
-
+        if((SystemTime.hours % Config.GPS) == 0){
+            GPSEn = 1;
+            EnableSysTick();
         }
 
-        //Every hour interrupt handling
-        if (HourInt == 1)
-        {
-
+        if(!(SystemTime.hours % Config.ICT)
+                && (((SystemTime.dayOfmonth-1) / 7) % Config.ITF == (Config.ITF-1)) // 1 - Every Week, 2 - 8-14,22-28, 3 - 15-21
+                && (SystemTime.dayOfWeek == Config.ITD)){
+            IridiumEn = 1;
         }
+
+        if((SystemTime.hours % Config.VST) == 0)
+            VHFEn = 1;
+        else if((SystemTime.hours % Config.VET) == 0)
+            VHFEn = 0;
     }
 }
 
-//This is used for a second interrupt to count how long the Xbee/GPS has been on.
+//This is used for a second interrupt to count how long the Iridium/GPS has been on.
 //The seconds, minutes, and hours of each device are incremented and the values in
 //each is stored into flash as needed.  These parameters are also pulled on startup.
 void SysTick_IRQHandler(void)
 {
-    //If the magnet has been removed, increment the counter for the VHF beacon
-    if (MagnetRemovedFlag == 1)
-    {
-        VHFSecOnCount++;
-    }
-
-    //Counter for the total Xbee on time
-    if (IridiumEn == 1)
-    {
-        IridiumSecOnCount++;
-    }
-
     //Counter for the total GPS on time
     if (GPSEn == 1)
     {
         GPSSecOnCount++;
+        if(GPSSecOnCount / 60 > Config.GTO){
+            GPSEn == 0;
+            DisableSysTick();
+        }
     }
 }
 

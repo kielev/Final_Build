@@ -8,6 +8,10 @@
 
 #include "Headers/General_Setup.h"
 
+//overall function for control of program returns true for sleep or false to run again
+_Bool checkControlConditions(){
+    return true;
+}
 
 //update the overall set of configs from a string
 void updateConfigString(char* String){

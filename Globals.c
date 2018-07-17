@@ -18,11 +18,6 @@ volatile _Bool GPSEn = 0;
 volatile _Bool VHFReq = 0;
 volatile _Bool VHFEn = 0;
 
-//Hour or Minute RTC interrupt flags
-volatile _Bool HourInt = 1; //Basically when we have nothing that is time critical to the minute, we want to wake up less
-//when Xbee is on, we are in the minute interrupt and want to turn it on and off accordingly. It is too much work to wake up
-//with the SysTick every second or so and create another counter.  This uses the low frequency external oscillator.
-volatile _Bool MinInt = 0;
 
 //Scheduling Globals
 

@@ -23,11 +23,6 @@ extern volatile _Bool GPSEn;
 extern volatile _Bool VHFReq;
 extern volatile _Bool VHFEn;
 
-//Hour or Minute RTC interrupt flags
-extern volatile _Bool HourInt; //Basically when we have nothing that is time critical to the minute, we want to wake up less
-//when Xbee is on, we are in the minute interrupt and want to turn it on and off accordingly. It is too much work to wake up
-//with the SysTick every second or so and create another counter.  This uses the low frequency external oscillator.
-extern volatile _Bool MinInt;
 
 //Scheduling Globals
 
@@ -66,6 +61,7 @@ extern volatile uint8_t VHFSecOnCount; //On startup, this gets incremented and i
 
 //Cool structure I made to store all of the parameters obtained through the UART connection
 static volatile GPSDataStruct GPSData;
+static volatile Configparameters Config;
 
 //GPS Globals
 volatile char dataString[300]; //Raw characters from the buffer are put in here
