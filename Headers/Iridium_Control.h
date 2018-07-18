@@ -16,10 +16,10 @@
 #include "Headers/Globals.h"
 
 //TODO EK 7-14-2018 Function to send a string of any length up to max
-int sendIridiumString(char* String);
+int sendIridiumString(char * String);
 
 //TODO EK 7-14-2018 Function to receive an Iridium String
-void receiveIridiumString(char* String);
+void receiveIridiumString();
 
 void initIridiumUART(void);
 

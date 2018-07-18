@@ -9,14 +9,17 @@
 
 
 //Function to send a string of any length up to max
-int sendIridiumString(char* String){
+int sendIridiumString(char * String){
     char* IMessage;
-    int x = 0;
+    int x = 0, ret = 0;
 
     Iridium_puts("AT\r");
     while(strncmp("OK",IridiumString,2) != 0 && x < 100){
         Delay1ms(1);
         x++;
+    }
+    if(x >= 100){
+        return 0;
     }
     x = 0;
 
@@ -25,6 +28,9 @@ int sendIridiumString(char* String){
     while(strncmp("OK",IridiumString,2) != 0 && x < 100){
         Delay1ms(1);
         x++;
+    }
+    if(x >= 100){
+        return 0;
     }
     x = 0;
 
@@ -35,6 +41,9 @@ int sendIridiumString(char* String){
         Delay1ms(1);
         x++;
     }
+    if(x >= 100){
+        return 0;
+    }
     x = 0;
 
     Iridium_puts("AT+SBDIX\r");
@@ -42,6 +51,9 @@ int sendIridiumString(char* String){
     while(strncmp("+SBDIX",IridiumString,6) != 0 && x < 2000){
         Delay1ms(1);
         x++;
+    }
+    if(x >= 2000){
+        return 0;
     }
     x = 0;
 
@@ -52,13 +64,18 @@ int sendIridiumString(char* String){
             Delay1ms(1);
             x++;
         }
+        if(x >= 2000){
+            return 0;
+        }
         x=0;
         while(strncmp("$",IridiumString,1) != 0){
             Delay1ms(1);
             x++;
         }
         strcpy(ParameterString, IridiumString);
+        return 2;
     }
+    return 1;
 }
 
 //Function to receive an Iridium String

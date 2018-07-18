@@ -57,10 +57,8 @@ void RTC_C_IRQHandler(void)
             IridiumEn = 1;
         }
 
-        if((SystemTime.hours % Config.VST) == 0)
-            VHFEn = 1;
-        else if((SystemTime.hours % Config.VET) == 0)
-            VHFEn = 0;
+        if((SystemTime.hours % Config.VST) == 0 || (SystemTime.hours % Config.VET) == 0)
+            VHFToggle = 1;
     }
 }
 

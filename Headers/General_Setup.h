@@ -11,6 +11,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "Headers/Iridium_Control.h"
+#include "Headers/GPS_Control.h"
+#include "Headers/Memory_Management.h"
+
 
 #ifndef PINSETUP_H_
 #define PINSETUP_H_
@@ -19,7 +23,7 @@
 _Bool checkControlConditions(void);
 
 //TODO EK 7-14-2018 update the overall set of configs from a string
-void updateConfigString(char* String);
+void updateConfigString();
 
 //TODO EK 7-14-2018 update the overall set of configs from passing globals
 void updateConfigGlobal(void);

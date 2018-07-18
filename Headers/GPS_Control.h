@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void GPSParse(char *String, GPSDataStruct *GPSData);
+void GPSParse();
 
 void GPS_puts(char *outString);
 

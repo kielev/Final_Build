@@ -16,7 +16,7 @@ void pullOldFix(char* String, int n){
     String[0] = '\0';
 
    //Get current memory location
-   ReadFixCount[0] = *(uint8_t*) (0x0003F000);
+   ReadFixCount[0] = *(uint8_t*) (0x0003F000); // should this 3E for transmission placeholder?
    ReadFixCount[1] = *(uint8_t*) (0x0003F001);
 
    //Compute the offset for the save address
@@ -32,6 +32,10 @@ void pullOldFix(char* String, int n){
        readout_fix(i * FIX_SIZE);
        strcat(String, FixRead);
    }
+}
+
+// TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
+void moveSentFix(int n){
 
 }
 
@@ -138,7 +142,7 @@ void readout_memory_new(void)
     {
         MAP_WDT_A_clearTimer();
         readout_fix(0x00020000 + offset + (i * 0x00000020));
-        Xbee_puts(FixRead);
+        //Xbee_puts(FixRead);
     }
 }
 
@@ -162,7 +166,7 @@ void readout_last_known_location(void)
         readout_fix(0x00020000 + (i * 0x00000020));
         if (FixRead[17] != '*')
         {
-            Xbee_puts(FixRead);
+            //Xbee_puts(FixRead);
             i = 0; //fail safe :)
             break;
         }

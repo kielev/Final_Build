@@ -21,7 +21,7 @@ extern volatile _Bool IridiumEn;
 extern volatile _Bool GPSReq;
 extern volatile _Bool GPSEn;
 extern volatile _Bool VHFReq;
-extern volatile _Bool VHFEn;
+extern volatile _Bool VHFToggle;
 
 
 //Scheduling Globals
@@ -61,6 +61,7 @@ extern volatile uint8_t VHFSecOnCount; //On startup, this gets incremented and i
 
 //Cool structure I made to store all of the parameters obtained through the UART connection
 static volatile GPSDataStruct GPSData;
+static volatile GPSDataStruct FinalGPSData;
 static volatile Configparameters Config;
 
 //GPS Globals
@@ -69,10 +70,12 @@ volatile char GPSString[300]; //When something needed to be parsed then it's put
 extern volatile int GPSindex; //Same thing as PC string
 extern volatile int GPSGo;
 extern volatile _Bool FixAttemptFailed;
+extern volatile _Bool GPSQuickRetry;
 
 //Iridium Globals
 volatile char IridiumString[300];
 extern volatile int Iridiumindex;
 extern volatile int IridiumGo;
+extern volatile _Bool IridiumQuickRetry;
 
 #endif /* HEADERS_GLOBALS_H_ */

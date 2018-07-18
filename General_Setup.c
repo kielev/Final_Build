@@ -10,11 +10,64 @@
 
 //overall function for control of program returns true for sleep or false to run again
 _Bool checkControlConditions(){
-    return true;
+    char* sendString;
+    int condition = 0;
+    int retry = -1;
+
+    if (IridiumEn == 1){
+        //Iridium On
+        GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
+
+        pullOldFix(sendString, 6); //DEFINE 6 to gps fixes in Iridium string
+
+        while(retry < Config.ICR && condition == 0){
+            condition = sendIridiumString(sendString);
+            retry++;
+        }
+
+        if(condition == 0){
+            IridiumQuickRetry = true;
+        } else if (condition == 1) {
+            /* Move position of unsent memory pointer */
+        } else if (condition == 2) {
+            /* Move position of unsent memory pointer */
+            updateConfigString();
+        }
+        GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
+        return false;
+
+    } else if (GPSEn == 1){
+        //GPS On
+        GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
+        FinalGPSData.HDOP = 20;
+
+        while(GPSEn == 1){
+            if(GPSGo){
+                GPSParse();
+
+                if(GPSData.HDOP < FinalGPSData.HDOP)
+                    FinalGPSData = GPSData;
+            }
+        }
+
+        if(FinalGPSData.HDOP < 20){
+            /* write FinalGPSData to CurrentFixSaveString */
+            save_current_fix();
+        }
+        GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
+        return false;
+
+    } else if (VHFToggle == 1){
+        GPIO_toggleOutputOnPin(GPIO_PORT_P4, GPIO_PIN7);
+        VHFToggle = 0;
+        return true;
+
+    } else
+        return true;
 }
 
-//update the overall set of configs from a string
-void updateConfigString(char* String){
+//update the overall set of configs from ParameterString
+void updateConfigString(){
 
 }
 

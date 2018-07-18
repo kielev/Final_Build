@@ -16,7 +16,7 @@ volatile _Bool IridiumEn = 0;
 volatile _Bool GPSReq = 0;
 volatile _Bool GPSEn = 0;
 volatile _Bool VHFReq = 0;
-volatile _Bool VHFEn = 0;
+volatile _Bool VHFToggle = 0;
 
 
 //Scheduling Globals
@@ -47,7 +47,9 @@ volatile uint8_t VHFSecOnCount = 0; //On startup, this gets incremented and is a
 volatile int GPSindex = 0; //Same thing as PC string
 volatile int GPSGo = 0;
 volatile _Bool FixAttemptFailed = 0;
+volatile _Bool GPSQuickRetry = false;
 
 //Iridium Globals
 volatile int Iridiumindex = 0;
 volatile int IridiumGo = 0;
+volatile _Bool IridiumQuickRetry = false;

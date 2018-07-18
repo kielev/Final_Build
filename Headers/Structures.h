@@ -11,7 +11,7 @@
 
 typedef struct _Configparameters
 {
-    uint8_t GPS; //GPS sample interval (1-24 hours)
+    uint8_t GPS; /**< GPS sample interval (1-24 hours) */
     uint8_t GTO; //GPS timeout (1-10 minutes)
     uint8_t ITF; //Iridium Transmission Frequency (1-weekly, 2-biweekly, 3 - monthly)
     uint8_t ITD; //Iridium transmission day (Sunday 0)

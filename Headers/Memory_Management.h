@@ -32,6 +32,9 @@ static volatile uint8_t MemPlaceholder[2]; //MemPlaceholder[0] stores position i
 //TODO EK 7-14-2018 Function to pull oldest unsent fixes and assemble a string
 void pullOldFix(char* String, int n);
 
+// TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
+void moveSentFix(int n);
+
 //Saves the current fix into memory and increments the location tracking
 void save_current_fix(void);
 
