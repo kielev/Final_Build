@@ -77,4 +77,34 @@ extern volatile int Iridiumindex;
 extern volatile int IridiumGo;
 extern volatile _Bool IridiumQuickRetry;
 
+// PC GUI globals
+extern volatile struct PC_Set_Time {
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+    uint8_t month;
+    uint8_t day;
+    uint16_t year;
+} pc_set_time;
+
+extern volatile struct PC_GPS_Settings {
+    uint8_t num_hours;
+    uint8_t fix_quality;
+} pc_gps_settings;
+extern volatile struct PC_Sat_Settings {
+    uint8_t upload_day;
+    uint8_t hour_connect;
+    uint8_t am_pm;
+    uint8_t frequency;
+    uint8_t retries;
+} pc_sat_settings;
+extern volatile struct PC_VHF_Settings {
+    uint8_t start_hour;
+    uint8_t start_am_pm;
+    uint8_t end_hour;
+    uint8_t end_am_pm;
+} pc_vhf_settings;
+extern volatile int LED_STATE;
+extern volatile int LED_CHANGE;
+
 #endif /* HEADERS_GLOBALS_H_ */
