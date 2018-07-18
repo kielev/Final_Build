@@ -16,8 +16,8 @@ void pullOldFix(char* String, int n){
     String[0] = '\0';
 
    //Get current memory location
-   ReadFixCount[0] = *(uint8_t*) (0x0003F000); // should this 3E for transmission placeholder?
-   ReadFixCount[1] = *(uint8_t*) (0x0003F001);
+   ReadFixCount[0] = *(uint8_t*) (0x0003E000); // should this 3E for transmission placeholder?
+   ReadFixCount[1] = *(uint8_t*) (0x0003E001);
 
    //Compute the offset for the save address
    unsigned offset = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
@@ -194,7 +194,7 @@ void readout_memory_all(void)
         readout_fix(0x00020000 + (i_1 * 0x00000020));
 
 
-         //PC_puts(FixRead);
+        //PC_puts(FixRead);
 
     }
 }

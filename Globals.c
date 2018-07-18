@@ -53,3 +53,11 @@ volatile _Bool GPSQuickRetry = false;
 volatile int Iridiumindex = 0;
 volatile int IridiumGo = 0;
 volatile _Bool IridiumQuickRetry = false;
+
+//PC GUI Globals
+volatile struct PC_Set_Time pc_set_time = {0,0,0,0,0,0};
+volatile struct PC_GPS_Settings pc_gps_settings = {0,0};
+volatile struct PC_Sat_Settings pc_sat_settings = {0,0,0,0,0};
+volatile struct PC_VHF_Settings pc_vhf_settings = {0,0,0,0};
+int volatile LED_STATE = 0;
+int volatile LED_CHANGE = 0;
