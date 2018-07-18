@@ -1,5 +1,4 @@
-/*
- * Globals.h
+ /* Globals.h
  *
  *  Created on: Jul 13, 2018
  *      Author: kielev

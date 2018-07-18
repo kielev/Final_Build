@@ -24,12 +24,20 @@ int main(void)
 
     MAP_WDT_A_startTimer();
 
+    GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
+    GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN7);
+
+    GPSParse("$GNRMC,171334.000,A,4257.9084,N,08540.9075,W,0.10,350.76,110718,,,A*6A", GPSData);
+    printf("%d/%d/%d\n", SetTime.dayOfmonth, SetTime.month, SetTime.year);
+    printf("%d:%d:%d\n", SetTime.hours, SetTime.minutes, SetTime.seconds);
+
     while(1)
     {
-        if(checkControlConditions()){
+        /*if(checkControlConditions()){
             MAP_PCM_enableRudeMode();
             MAP_PCM_gotoLPM3();
-        }
+        }*/
     }
 }
 

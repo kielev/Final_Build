@@ -18,7 +18,7 @@ _Bool checkControlConditions(){
         //Iridium On
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
 
-        pullOldFix(sendString, 6); //DEFINE 6 to gps fixes in Iridium string
+        pullOldFix(sendString, IRIDIUMFIXES);
 
         while(retry < Config.ICR && condition == 0){
             condition = sendIridiumString(sendString);
@@ -28,9 +28,9 @@ _Bool checkControlConditions(){
         if(condition == 0){
             IridiumQuickRetry = true;
         } else if (condition == 1) {
-            /* Move position of unsent memory pointer */
+            moveSentFix(IRIDIUMFIXES);
         } else if (condition == 2) {
-            /* Move position of unsent memory pointer */
+            moveSentFix(IRIDIUMFIXES);
             updateConfigString();
         }
         GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);

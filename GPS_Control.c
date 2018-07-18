@@ -8,22 +8,40 @@
 #include "Headers/GPS_Control.h"
 
 
-void GPSParse(){
-    char timeString[20];
-    if(!strncmp(&GPSString[3], "GGA", 3)){
-        sprintf(timeString, "%d%d%d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
-        GPSData.FixDate = atoi(timeString);
-        strtok(GPSString,",");
-        GPSData.FixTime = atoi(strtok(NULL,","));
-        GPSData.Lat = atof(strtok(NULL,","));
-        GPSData.LatDir = *strtok(NULL,",");
-        GPSData.Lon = atof(strtok(NULL,","));
-        GPSData.LonDir = *strtok(NULL,",");
-        GPSData.FixQuality = atoi(strtok(NULL,","));
+void GPSParse(char *String, GPSDataStruct *GPSData){
+    char* dateString;
+    char inString[100];
+    strcpy(inString, String);
+    if(!strncmp(&inString[3], "GGA", 3)){
+        sprintf(dateString, "%d%d%d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
+        GPSData->FixDate = atoi(dateString);
+        strtok(inString,",");
+        GPSData->FixTime = atoi(strtok(NULL,","));
+        GPSData->Lat = atof(strtok(NULL,","));
+        GPSData->LatDir = *strtok(NULL,",");
+        GPSData->Lon = atof(strtok(NULL,","));
+        GPSData->LonDir = *strtok(NULL,",");
+        GPSData->FixQuality = atoi(strtok(NULL,","));
         strtok(NULL,",");
-        GPSData.HDOP = atof(strtok(NULL,","));
+        GPSData->HDOP = atof(strtok(NULL,","));
     }
-    GPSGo = 0;
+
+    if(!strncmp(&inString[3], "RMC", 3)){
+        strtok(inString,",");
+        dateString = strtok(NULL,",");
+        printf("1- %s\n", dateString);
+        sscanf(dateString, "%.2d%.2d%.2d", SetTime.hours, SetTime.minutes, SetTime.seconds);
+        strtok(NULL,",");
+        strtok(NULL,",");
+        strtok(NULL,",");
+        strtok(NULL,",");
+        strtok(NULL,",");
+        strtok(NULL,",");
+        strtok(NULL,",");
+        dateString = strtok(NULL,",");
+        printf("2- %s\n", dateString);
+        sscanf(dateString, "%.2d%.2d%.2d", &SetTime.dayOfmonth, &SetTime.month, &SetTime.year);
+    }
 }
 
 void GPS_puts(char *outString)
