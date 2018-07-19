@@ -26,8 +26,8 @@ extern volatile _Bool VHFToggle;
 //Scheduling Globals
 
 //RTC Globals
-static volatile RTC_C_Calendar SystemTime; //This is for within the system, it gets updated every time the RTC interrupt happens
-static volatile RTC_C_Calendar SetTime; //Had to have a separate structure which got populated for updating the RTC time.  It was weird
+volatile RTC_C_Calendar SystemTime; //This is for within the system, it gets updated every time the RTC interrupt happens
+volatile RTC_C_Calendar SetTime; //Had to have a separate structure which got populated for updating the RTC time.  It was weird
 //in that it wouldn't work with using the same structure, likely because the RTC handler was messing with it.
 
 //UART ISR Globals

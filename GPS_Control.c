@@ -9,10 +9,11 @@
 
 
 void GPSParse(char *String, GPSDataStruct *GPSData){
-    char* dateString;
+    char* dateString = NULL;
     char inString[100];
+    int DOW1, DOW2;
     strcpy(inString, String);
-    if(!strncmp(&inString[3], "GGA", 3)){
+    if(!strncmp(&inString[3], "GGA", 3) && strlen(inString) > 20){ //update value for length
         sprintf(dateString, "%d%d%d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
         GPSData->FixDate = atoi(dateString);
         strtok(inString,",");
@@ -26,11 +27,15 @@ void GPSParse(char *String, GPSDataStruct *GPSData){
         GPSData->HDOP = atof(strtok(NULL,","));
     }
 
-    if(!strncmp(&inString[3], "RMC", 3)){
+    if(!strncmp(&inString[3], "RMC", 3) && strlen(inString) > 20){ //update value for length
         strtok(inString,",");
         dateString = strtok(NULL,",");
-        printf("1- %s\n", dateString);
-        sscanf(dateString, "%.2d%.2d%.2d", SetTime.hours, SetTime.minutes, SetTime.seconds);
+
+        if (strlen(dateString) == 10) {
+            SetTime.hours   = (dateString[0]-'0') * 10 + (dateString[1]-'0');
+            SetTime.minutes = (dateString[2]-'0') * 10 + (dateString[3]-'0');
+            SetTime.seconds = (dateString[4]-'0') * 10 + (dateString[5]-'0');
+        }
         strtok(NULL,",");
         strtok(NULL,",");
         strtok(NULL,",");
@@ -39,8 +44,20 @@ void GPSParse(char *String, GPSDataStruct *GPSData){
         strtok(NULL,",");
         strtok(NULL,",");
         dateString = strtok(NULL,",");
-        printf("2- %s\n", dateString);
-        sscanf(dateString, "%.2d%.2d%.2d", &SetTime.dayOfmonth, &SetTime.month, &SetTime.year);
+        if (strlen(dateString) == 6) {
+            SetTime.dayOfmonth = (dateString[0]-'0') * 10 + (dateString[1]-'0');
+            SetTime.month      = (dateString[2]-'0') * 10 + (dateString[3]-'0');
+            SetTime.year       = (dateString[4]-'0') * 10 + (dateString[5]-'0') + 2000;
+
+            DOW1 = ((SetTime.month + 9) % 12);
+            DOW2 = (2000 + SetTime.year - (DOW1 / 10));
+            SetTime.dayOfWeek = ((365 * DOW2 + (DOW2 / 4) - (DOW2 / 100) + (DOW2 / 400)
+                    + ((DOW1 * 306 + 5) / 10) + SetTime.dayOfmonth + 2) % 7);
+
+            MAP_RTC_C_holdClock();
+            MAP_RTC_C_initCalendar(&SetTime, RTC_C_FORMAT_BINARY);
+            MAP_RTC_C_startClock();
+        }
     }
 }
 

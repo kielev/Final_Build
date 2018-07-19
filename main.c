@@ -29,15 +29,21 @@ int main(void)
     GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN7);
 
     GPSParse("$GNRMC,171334.000,A,4257.9084,N,08540.9075,W,0.10,350.76,110718,,,A*6A", GPSData);
+    if(SetTime.dayOfWeek == 3){
+        printf("Wednesday\n");
+    } else {
+        printf("%d\n", SetTime.dayOfWeek);
+    }
+
     printf("%d/%d/%d\n", SetTime.dayOfmonth, SetTime.month, SetTime.year);
     printf("%d:%d:%d\n", SetTime.hours, SetTime.minutes, SetTime.seconds);
 
     while(1)
     {
-        /*if(checkControlConditions()){
+        if(checkControlConditions()){
             MAP_PCM_enableRudeMode();
             MAP_PCM_gotoLPM3();
-        }*/
+        }
     }
 }
 
@@ -53,7 +59,6 @@ void RTC_C_IRQHandler(void)
 
     if (status & RTC_C_TIME_EVENT_INTERRUPT)
     {
-        // Interrupts every hour or minute based on state of program
         if((SystemTime.hours % Config.GPS) == 0){
             GPSEn = 1;
             EnableSysTick();
@@ -80,7 +85,8 @@ void SysTick_IRQHandler(void)
     {
         GPSSecOnCount++;
         if(GPSSecOnCount / 60 > Config.GTO){
-            GPSEn == 0;
+            GPSEn = 0;
+            GPSSecOnCount = 0;
             DisableSysTick();
         }
     }
