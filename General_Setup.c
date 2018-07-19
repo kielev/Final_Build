@@ -77,7 +77,53 @@ void updateConfigString(){
 
 //update the overall set of configs from passing globals
 void updateConfigGlobal(void){
+    // Map indices from PC GUI drop-down menu to number of hours in the GPS interval
+    int gps_intervals[] = {1, 2, 3, 4, 6, 8, 12, 24};
+    // Safety check that selected index is in bounds
+    if(pc_gps_settings.num_hours >= 0 && pc_gps_settings.num_hours < 8)
+    {
+        // Update GPS interval
+        Config.GPS = gps_intervals[pc_gps_settings.num_hours];
+    }
 
+    // Update GPS timeout
+    Config.GTO = pc_gps_settings.timeout;
+
+    // Satellite upload day
+    Config.ITD = pc_sat_settings.upload_day;
+
+    // Satellite upload frequency
+    Config.ITF = pc_sat_settings.frequency;
+
+    // Satellite connection time (GUI is in 12-hr format while internally we use 24)
+    Config.ICT = convert12to24(pc_sat_settings.hour_connect,  pc_sat_settings.am_pm);
+
+    // Satellite allowed retries
+    Config.ICR = pc_sat_settings.retries;
+
+    // VHF start time
+    Config.VST = convert12to24(pc_vhf_settings.start_hour, pc_vhf_settings.start_am_pm);
+
+    // VHF end time
+    Config.VET = convert12to24(pc_vhf_settings.end_hour, pc_vhf_settings.end_am_pm);
+}
+
+int convert12to24(int hour, _Bool pm)
+{
+    int result = 0; // Return value (hour in 24 format)
+    if(pm)  // PM
+    {
+        result = 12;
+        if(hour != 12)
+        {
+            result += hour;
+        }
+    }
+    else  // AM
+    {
+        result = (hour == 12) ? 0 : hour;
+    }
+    return result;
 }
 
 void IOSetup(void)

@@ -36,6 +36,9 @@ void initClocks(void);
 
 void RTC_setup(void);
 
+// ST 7-19-2018 A helper function for converting an AM/PM hour to the 24-hour clock
+int convert12to24(int hour, _Bool pm);
+
 void EnableSysTick(void);
 
 void DisableSysTick(void);
