@@ -75,6 +75,21 @@ void updateConfigString(){
 
 }
 
+void setDateTime()
+{
+    int DOW1, DOW2;
+    // First make sure day of week is calculated correctly
+    DOW1 = ((SetTime.month + 9) % 12);
+    DOW2 = (2000 + SetTime.year - (DOW1 / 10));
+    SetTime.dayOfWeek = ((365 * DOW2 + (DOW2 / 4) - (DOW2 / 100) + (DOW2 / 400)
+            + ((DOW1 * 306 + 5) / 10) + SetTime.dayOfmonth + 2) % 7);
+
+    // Now, update the RTC using the values we have in the SetTime structure
+    MAP_RTC_C_holdClock();
+    MAP_RTC_C_initCalendar(&SetTime, RTC_C_FORMAT_BINARY);
+    MAP_RTC_C_startClock();
+}
+
 //update the overall set of configs from passing globals
 void updateConfigGlobal(void){
     // Map indices from PC GUI drop-down menu to number of hours in the GPS interval
@@ -106,6 +121,15 @@ void updateConfigGlobal(void){
 
     // VHF end time
     Config.VET = convert12to24(pc_vhf_settings.end_hour, pc_vhf_settings.end_am_pm);
+
+    // System time
+    SetTime.month = pc_set_time.month;
+    SetTime.year = pc_set_time.year;
+    SetTime.dayOfmonth = pc_set_time.day;
+    SetTime.hours = pc_set_time.hour;
+    SetTime.minutes = pc_set_time.minute;
+    SetTime.seconds = pc_set_time.second;
+    setDateTime();
 }
 
 int convert12to24(int hour, _Bool pm)

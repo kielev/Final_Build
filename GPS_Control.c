@@ -10,7 +10,6 @@
 
 void GPSParse(){
     char* dateString = NULL;
-    int DOW1, DOW2;
 
     if(!strncmp(&GPSString[3], "GGA", 3) && strlen(GPSString) > 55){
         sprintf(dateString, "%d%d%d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
@@ -48,14 +47,7 @@ void GPSParse(){
             SetTime.month      = (dateString[2]-'0') * 10 + (dateString[3]-'0');
             SetTime.year       = (dateString[4]-'0') * 10 + (dateString[5]-'0') + 2000;
 
-            DOW1 = ((SetTime.month + 9) % 12);
-            DOW2 = (2000 + SetTime.year - (DOW1 / 10));
-            SetTime.dayOfWeek = ((365 * DOW2 + (DOW2 / 4) - (DOW2 / 100) + (DOW2 / 400)
-                    + ((DOW1 * 306 + 5) / 10) + SetTime.dayOfmonth + 2) % 7);
-
-            MAP_RTC_C_holdClock();
-            MAP_RTC_C_initCalendar(&SetTime, RTC_C_FORMAT_BINARY);
-            MAP_RTC_C_startClock();
+            setDateTime();
         }
     }
 }
