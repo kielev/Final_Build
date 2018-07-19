@@ -8,27 +8,26 @@
 #include "Headers/GPS_Control.h"
 
 
-void GPSParse(char *String, GPSDataStruct *GPSData){
+void GPSParse(){
     char* dateString = NULL;
-    char inString[100];
     int DOW1, DOW2;
-    strcpy(inString, String);
-    if(!strncmp(&inString[3], "GGA", 3) && strlen(inString) > 20){ //update value for length
+
+    if(!strncmp(&GPSString[3], "GGA", 3) && strlen(GPSString) > 55){
         sprintf(dateString, "%d%d%d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
-        GPSData->FixDate = atoi(dateString);
-        strtok(inString,",");
-        GPSData->FixTime = atoi(strtok(NULL,","));
-        GPSData->Lat = atof(strtok(NULL,","));
-        GPSData->LatDir = *strtok(NULL,",");
-        GPSData->Lon = atof(strtok(NULL,","));
-        GPSData->LonDir = *strtok(NULL,",");
-        GPSData->FixQuality = atoi(strtok(NULL,","));
+        GPSData.FixDate = atoi(dateString);
+        strtok(GPSString,",");
+        GPSData.FixTime = atoi(strtok(NULL,","));
+        GPSData.Lat = atof(strtok(NULL,","));
+        GPSData.LatDir = *strtok(NULL,",");
+        GPSData.Lon = atof(strtok(NULL,","));
+        GPSData.LonDir = *strtok(NULL,",");
+        GPSData.FixQuality = atoi(strtok(NULL,","));
         strtok(NULL,",");
-        GPSData->HDOP = atof(strtok(NULL,","));
+        GPSData.HDOP = atof(strtok(NULL,","));
     }
 
-    if(!strncmp(&inString[3], "RMC", 3) && strlen(inString) > 20){ //update value for length
-        strtok(inString,",");
+    if(!strncmp(&GPSString[3], "RMC", 3) && strlen(GPSString) > 55){
+        strtok(GPSString,",");
         dateString = strtok(NULL,",");
 
         if (strlen(dateString) == 10) {

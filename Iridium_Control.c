@@ -65,12 +65,15 @@ int sendIridiumString(char * String){
             x++;
         }
         if(x >= 2000){
-            return 0;
+            return 1;
         }
         x=0;
-        while(strncmp("$",IridiumString,1) != 0){
+        while(strncmp("$",IridiumString,1) != 0 && x < 2000){
             Delay1ms(1);
             x++;
+        }
+        if(x >= 2000){
+            return 1;
         }
         strcpy(ParameterString, IridiumString);
         return 2;
