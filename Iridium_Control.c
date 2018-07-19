@@ -81,10 +81,6 @@ int sendIridiumString(char * String){
     return 1;
 }
 
-//Function to receive an Iridium String
-void receiveIridiumString(char* String){
-
-}
 
 void Iridium_puts(char *outString)
 {

@@ -100,12 +100,9 @@ void PORT4_IRQHandler(void)
         {
             //initPCUART(); //Initialize the PC UART
             USBPresentFlag = 1; //USB present
-            GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
+            GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
             GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
             GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN7);
-            IridiumReq = 0;
-            GPSReq = 0;
-            VHFReq = 0;
         }
         else
         {
@@ -120,12 +117,9 @@ void PORT4_IRQHandler(void)
         //initPCUART();
         MAP_RTC_C_startClock();
         USBPresentFlag = 1;
-        GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
+        GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
         GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
         GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN7);
-        IridiumReq = 0;
-        GPSReq = 0;
-        VHFReq = 0;
     }
 }
 
