@@ -59,6 +59,7 @@ volatile struct PC_VHF_Settings pc_vhf_settings = {0,0,0,0};
 int volatile LED_STATE = 0;
 int volatile LED_CHANGE = 0;
 volatile int NEW_DATA_READY = 0;
+volatile int PC_READY_DATA = 0;
 volatile int ALL_DATA_SENT = 1;
 volatile int SET_TIME_PRESSED = 0;
 volatile int SET_GPS_PRESSED = 0;

@@ -149,6 +149,11 @@ void updateConfigGlobal(void){
     }
 }
 
+_Bool newConfigReceivedPC()
+{
+    return (SET_GPS_PRESSED | SET_VHF_PRESSED | SET_TIME_PRESSED | SET_SAT_PRESSED);
+}
+
 int convert12to24(int hour, _Bool pm)
 {
     int result = 0; // Return value (hour in 24 format)

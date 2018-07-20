@@ -109,6 +109,7 @@ extern volatile int LED_STATE;
 extern volatile int LED_CHANGE;
 extern volatile int ALL_DATA_SENT;
 extern volatile int NEW_DATA_READY;
+extern volatile int PC_READY_DATA;
 extern volatile int SET_TIME_PRESSED;
 extern volatile int SET_GPS_PRESSED;
 extern volatile int SET_SAT_PRESSED;
