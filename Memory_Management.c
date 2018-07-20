@@ -13,41 +13,86 @@ volatile _Bool MemoryFull = 0;
 //Function to pull oldest unsent fixes and assemble a string
 void pullOldFix(char* String, int n){
     uint8_t ReadFixCount[2]; //This stores the current sector position and current sector read out from flash
+    uint8_t TransmitFixCount[2]; // Last transmission sector position and sector
     String[0] = '\0';
 
    //Get current memory location
-   ReadFixCount[0] = *(uint8_t*) (0x0003E000);
-   ReadFixCount[1] = *(uint8_t*) (0x0003E001);
+    TransmitFixCount[0] = *(uint8_t*) (0x0003E000);
+    TransmitFixCount[1] = *(uint8_t*) (0x0003E001);
+
+   // Last place we stored a fix (TODO Check if this is right or if it's this + 1 more fix)
+    ReadFixCount[0] = *(uint8_t*) (0x0003F000); // should this 3E for transmission placeholder?
+    ReadFixCount[1] = *(uint8_t*) (0x0003F001);
 
    //Compute the offset for the save address
-   unsigned offset = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
-   if(n > (offset/FIX_SIZE))
+   unsigned offsetTransmit = (FIX_SIZE * TransmitFixCount[0]) + (4096 * TransmitFixCount[1]);
+   unsigned offsetRead = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
+
+   int maxFixesTransmittable = (offsetRead - offsetTransmit)/FIX_SIZE;
+   if(n > maxFixesTransmittable)
    {
        // don't try to read more than we have stored
-       n = offset/FIX_SIZE;
+       n = maxFixesTransmittable;
    }
+
    int i;
+   // IT WILL ALWAYS BE 7
    for(i = 0; i < n; ++i)
    {
-       readout_fix(i * FIX_SIZE);
+       int nextTransmit = i * FIX_SIZE + TransmitFixCount[0];
+       if(nextTransmit + FIX_SIZE > 4096)
+       {
+           TransmitFixCount[0] = 0;
+           TransmitFixCount[1] += 1;
+           offsetTransmit = 4096 * (TransmitFixCount[1]);
+       }
+       readout_fix(i * FIX_SIZE + offsetTransmit);
        strcat(String, FixRead);
    }
 }
 
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
 void moveSentFix(int n){
-    //Get current memory location
-       ReadFixCount[0] = *(uint8_t*) (0x0003E000);
-       ReadFixCount[1] = *(uint8_t*) (0x0003E001);
+    uint8_t ReadFixCount[2]; //This stores the current sector position and current sector read out from flash
+    uint8_t TransmitFixCount[2]; // Last transmission sector position and sector
 
-       //Compute the offset for the save address
-       unsigned offset = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
-       if(n > (offset/FIX_SIZE))
+   //Get current memory location
+    TransmitFixCount[0] = *(uint8_t*) (0x0003E000);
+    TransmitFixCount[1] = *(uint8_t*) (0x0003E001);
+   // Last place we stored a fix (TODO Check if this is right or if it's this + 1 more fix)
+    ReadFixCount[0] = *(uint8_t*) (0x0003F000); // should this 3E for transmission placeholder?
+    ReadFixCount[1] = *(uint8_t*) (0x0003F001);
+   //Compute the offset for the save address
+   unsigned offsetTransmit = (FIX_SIZE * TransmitFixCount[0]) + (4096 * TransmitFixCount[1]);
+   unsigned offsetRead = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
+   int maxFixesTransmittable = (offsetRead - offsetTransmit)/FIX_SIZE;
+
+
+
+   if(n > maxFixesTransmittable)
+   {
+       // don't try to read more than we have stored
+   }
+       n = maxFixesTransmittable;
+
+   int sectorRemain = SECTOR_CAPACITY - TransmitFixCount[0];
+   // This assumes n won't be larger than SECTOR_SIZE
+   if(n > sectorRemain)
+   {
+       MemPlaceholder[0] = n - sectorRemain;
+       do
        {
-           // don't try to read more than we have stored
-           n = offset/FIX_SIZE;
-       }
+           MemPlaceholder[1] = TransmitFixCount[1]++;
+           MemPlaceholder[0] -= MemPlaceholder[0] > SECTOR_CAPACITY ? SECTOR_CAPACITY : 0;
+       } while(MemPlaceholder[0] > SECTOR_CAPACITY);
+   }
+   else
+   {
+       MemPlaceholder[0] = TransmitFixCount[0] + n;
+       MemPlaceholder[1] = TransmitFixCount[1];
+   }
 
+   transmission_placeholder_store();
 }
 
 //Saves the current fix into memory and increments the location tracking
