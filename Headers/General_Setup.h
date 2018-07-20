@@ -36,6 +36,8 @@ void initClocks(void);
 
 void RTC_setup(void);
 
+_Bool newConfigReceivedPC();
+
 void setDateTime();
 
 // ST 7-19-2018 A helper function for converting an AM/PM hour to the 24-hour clock

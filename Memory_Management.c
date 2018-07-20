@@ -95,6 +95,83 @@ void moveSentFix(int n){
    transmission_placeholder_store();
 }
 
+//Store the configuration parameters to flash
+int store_config_params(void)
+{
+    int result = 0;
+
+    //Declare save array
+    uint8_t ConfigSave[9] = { 0 };
+    ConfigSave[0] = Config.GPS;
+    ConfigSave[1] = Config.GTO;
+    ConfigSave[2] = Config.ICR;
+    ConfigSave[3] = Config.ICT;
+    ConfigSave[4] = Config.ITD;
+    ConfigSave[5] = Config.ITF;
+    ConfigSave[6] = Config.VET;
+    ConfigSave[7] = Config.VST;
+    ConfigSave[8] = '\0';
+
+    //Save the config params to flash
+    FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR28); //unprotect sector
+    FlashCtl_eraseSector(0x0003C000); //erase the sector
+    FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
+    result = FlashCtl_programMemory(ConfigSave, (void*) 0x0003C000, 9); //write the data
+    FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR28); //protect sector
+
+    return result;
+}
+
+//Readout the configuration parameters from flash
+void readout_config_params(void)
+{
+    uint8_t FlashCheck[8]; //Store what's in flash here
+
+    //See if flash has been initialized
+    FlashCheck[0] = *(uint8_t*) (0x0003C000);
+    FlashCheck[1] = *(uint8_t*) (0x0003C001);
+    FlashCheck[2] = *(uint8_t*) (0x0003C002);
+    FlashCheck[3] = *(uint8_t*) (0x0003C003);
+    FlashCheck[4] = *(uint8_t*) (0x0003C004);
+    FlashCheck[5] = *(uint8_t*) (0x0003C005);
+    FlashCheck[6] = *(uint8_t*) (0x0003C006);
+    FlashCheck[7] = *(uint8_t*) (0x0003C007);
+
+    //Fill structure from flash if initialized
+    if (FlashCheck[0] != 255)
+    {
+        Config.GPS = *(uint8_t*) (0x0003C000);
+    }
+    if (FlashCheck[1] != 255)
+    {
+        Config.GTO = *(uint8_t*) (0x0003C001);
+    }
+    if (FlashCheck[2] != 255)
+    {
+        Config.ICR = *(uint8_t*) (0x0003C002);
+    }
+    if (FlashCheck[3] != 255)
+    {
+        Config.ICT = *(uint8_t*) (0x0003C003);
+    }
+    if (FlashCheck[4] != 255)
+    {
+        Config.ITD = *(uint8_t*) (0x0003C004);
+    }
+    if (FlashCheck[5] != 255)
+    {
+        Config.ITF = *(uint8_t*) (0x0003C005);
+    }
+    if (FlashCheck[6] != 255)
+    {
+        Config.VET = *(uint8_t*) (0x0003C006);
+    }
+    if (FlashCheck[7] != 255)
+    {
+        Config.VST = *(uint8_t*) (0x0003C007);
+    }
+}
+
 //Saves the current fix into memory and increments the location tracking
 void save_current_fix(void)
 {
@@ -247,12 +324,13 @@ void readout_memory_all(void)
     for (i_1 = 0; i_1 < max; i_1++)
     {
         MAP_WDT_A_clearTimer();
+        while(!PC_READY_DATA);
+        NEW_DATA_READY = 0;
         readout_fix(0x00020000 + (i_1 * 0x00000020));
-
-
+        NEW_DATA_READY = 1;
         //PC_puts(FixRead);
-
     }
+    ALL_DATA_SENT = 1;
 }
 
 //Resets the memory location tracking
@@ -337,5 +415,3 @@ _Bool isMemoryFull(void){
 void setMemoryFull(_Bool Status){
     MemoryFull = Status;
 }
-
-

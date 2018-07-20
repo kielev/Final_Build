@@ -30,6 +30,14 @@ int main(void)
             MAP_PCM_enableRudeMode();
             MAP_PCM_gotoLPM3();
         }
+        if(newConfigReceivedPC())
+        {
+            updateConfigGlobal();
+        }
+        if(PC_READY_DATA)
+        {
+            readout_memory_all();
+        }
     }
 }
 
