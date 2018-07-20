@@ -90,7 +90,7 @@ extern volatile struct PC_Set_Time {
 
 extern volatile struct PC_GPS_Settings {
     uint8_t num_hours;
-    uint8_t fix_quality;
+    uint8_t timeout;
 } pc_gps_settings;
 extern volatile struct PC_Sat_Settings {
     uint8_t upload_day;
@@ -107,5 +107,7 @@ extern volatile struct PC_VHF_Settings {
 } pc_vhf_settings;
 extern volatile int LED_STATE;
 extern volatile int LED_CHANGE;
+extern volatile int ALL_DATA_SENT;
+extern volatile int NEW_DATA_READY;
 
 #endif /* HEADERS_GLOBALS_H_ */
