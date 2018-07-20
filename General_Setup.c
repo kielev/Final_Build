@@ -92,44 +92,61 @@ void setDateTime()
 
 //update the overall set of configs from passing globals
 void updateConfigGlobal(void){
-    // Map indices from PC GUI drop-down menu to number of hours in the GPS interval
-    int gps_intervals[] = {1, 2, 3, 4, 6, 8, 12, 24};
-    // Safety check that selected index is in bounds
-    if(pc_gps_settings.num_hours >= 0 && pc_gps_settings.num_hours < 8)
+
+    if(SET_GPS_PRESSED)
     {
-        // Update GPS interval
-        Config.GPS = gps_intervals[pc_gps_settings.num_hours];
+        SET_GPS_PRESSED = 0;
+        // Map indices from PC GUI drop-down menu to number of hours in the GPS interval
+        int gps_intervals[] = {1, 2, 3, 4, 6, 8, 12, 24};
+        // Safety check that selected index is in bounds
+        if(pc_gps_settings.num_hours >= 0 && pc_gps_settings.num_hours < 8)
+        {
+            // Update GPS interval
+            Config.GPS = gps_intervals[pc_gps_settings.num_hours];
+        }
+
+        // Update GPS timeout
+        Config.GTO = pc_gps_settings.timeout;
     }
 
-    // Update GPS timeout
-    Config.GTO = pc_gps_settings.timeout;
+    if(SET_SAT_PRESSED)
+    {
+        SET_SAT_PRESSED = 0;
+        // Satellite upload day
+        Config.ITD = pc_sat_settings.upload_day;
 
-    // Satellite upload day
-    Config.ITD = pc_sat_settings.upload_day;
+        // Satellite upload frequency
+        Config.ITF = pc_sat_settings.frequency;
 
-    // Satellite upload frequency
-    Config.ITF = pc_sat_settings.frequency;
+        // Satellite connection time (GUI is in 12-hr format while internally we use 24)
+        Config.ICT = convert12to24(pc_sat_settings.hour_connect,  pc_sat_settings.am_pm);
 
-    // Satellite connection time (GUI is in 12-hr format while internally we use 24)
-    Config.ICT = convert12to24(pc_sat_settings.hour_connect,  pc_sat_settings.am_pm);
+        // Satellite allowed retries
+        Config.ICR = pc_sat_settings.retries;
+    }
 
-    // Satellite allowed retries
-    Config.ICR = pc_sat_settings.retries;
+    if(SET_VHF_PRESSED)
+    {
+        SET_VHF_PRESSED = 0;
+        // VHF start time
+        Config.VST = convert12to24(pc_vhf_settings.start_hour, pc_vhf_settings.start_am_pm);
 
-    // VHF start time
-    Config.VST = convert12to24(pc_vhf_settings.start_hour, pc_vhf_settings.start_am_pm);
+        // VHF end time
+        Config.VET = convert12to24(pc_vhf_settings.end_hour, pc_vhf_settings.end_am_pm);
+    }
 
-    // VHF end time
-    Config.VET = convert12to24(pc_vhf_settings.end_hour, pc_vhf_settings.end_am_pm);
-
-    // System time
-    SetTime.month = pc_set_time.month;
-    SetTime.year = pc_set_time.year;
-    SetTime.dayOfmonth = pc_set_time.day;
-    SetTime.hours = pc_set_time.hour;
-    SetTime.minutes = pc_set_time.minute;
-    SetTime.seconds = pc_set_time.second;
-    setDateTime();
+    if(SET_TIME_PRESSED)
+    {
+        SET_TIME_PRESSED = 0;
+        // System time
+        SetTime.month = pc_set_time.month;
+        SetTime.year = pc_set_time.year;
+        SetTime.dayOfmonth = pc_set_time.day;
+        SetTime.hours = pc_set_time.hour;
+        SetTime.minutes = pc_set_time.minute;
+        SetTime.seconds = pc_set_time.second;
+        setDateTime();
+    }
 }
 
 int convert12to24(int hour, _Bool pm)

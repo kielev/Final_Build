@@ -12,6 +12,7 @@
 #include "rom_map.h"
 #include "driverlib.h"
 #include "msp432.h"
+#include "Headers/Globals.h"
 
 //Where Flash Bank 1 begins
 #define START_LOC 0x00020000
@@ -31,6 +32,10 @@ static volatile uint8_t MemPlaceholder[2]; //MemPlaceholder[0] stores position i
 
 //TODO EK 7-14-2018 Function to pull oldest unsent fixes and assemble a string
 void pullOldFix(char* String, int n);
+
+int store_config_params(void);
+
+void readout_config_params(void);
 
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
 void moveSentFix(int n);
