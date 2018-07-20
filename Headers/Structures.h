@@ -30,7 +30,6 @@ typedef struct _GPSData
     char LatDir;
     float Lon;
     char LonDir;
-    int FixQuality;
     float HDOP;
 } GPSDataStruct;
 

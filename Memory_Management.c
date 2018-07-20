@@ -54,34 +54,34 @@ void pullOldFix(char* String, int n){
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
 void moveSentFix(int n){
     uint8_t ReadFixCount[2]; //This stores the current sector position and current sector read out from flash
-    uint8_t TransmitFixCount[2]; // Last transmission sector position and sector
     String[0] = '\0';
+    uint8_t TransmitFixCount[2]; // Last transmission sector position and sector
 
    //Get current memory location
     TransmitFixCount[0] = *(uint8_t*) (0x0003E000);
     TransmitFixCount[1] = *(uint8_t*) (0x0003E001);
-
    // Last place we stored a fix (TODO Check if this is right or if it's this + 1 more fix)
     ReadFixCount[0] = *(uint8_t*) (0x0003F000); // should this 3E for transmission placeholder?
     ReadFixCount[1] = *(uint8_t*) (0x0003F001);
-
    //Compute the offset for the save address
    unsigned offsetTransmit = (FIX_SIZE * TransmitFixCount[0]) + (4096 * TransmitFixCount[1]);
    unsigned offsetRead = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
-
    int maxFixesTransmittable = (offsetRead - offsetTransmit)/FIX_SIZE;
+
+
+
    if(n > maxFixesTransmittable)
    {
        // don't try to read more than we have stored
-       n = maxFixesTransmittable;
    }
+       n = maxFixesTransmittable;
 
    int sectorRemain = SECTOR_SIZE - TransmitFixCount[0];
    // This assumes n won't be larger than SECTOR_SIZE
    if(n > sectorRemain)
    {
-       MemPlaceholder[0] = n - sectorRemain;
        do
+       MemPlaceholder[0] = n - sectorRemain;
        {
            MemPlaceholder[1] = TransmitFixCount[1]++;
            MemPlaceholder[0] -= MemPlaceholder[0] > SECTOR_SIZE ? SECTOR_SIZE : 0;
