@@ -40,6 +40,8 @@ volatile _Bool NowGetFix = 0; //Another bit for getting the current location of 
 
 volatile uint8_t VHFSecOnCount = 0; //On startup, this gets incremented and is a "beacon" so they know the collar is on.
 
+volatile int BatteryLow = 0;
+
 //GPS Globals
 volatile int GPSindex = 0; //Same thing as PC string
 volatile int GPSGo = 0;

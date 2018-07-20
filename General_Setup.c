@@ -55,7 +55,7 @@ _Bool checkControlConditions(){
             sprintf(CurrentFixSaveString, "%d,%d,%4.4f,%c,%5.4f,%c,%1.2f"
                     , FinalGPSData.FixDate, FinalGPSData.FixTime, FinalGPSData.Lat, FinalGPSData.LatDir
                     , FinalGPSData.Lon, FinalGPSData.LonDir, FinalGPSData.HDOP);
-            printf("%s\n", CurrentFixSaveString);
+            //printf("%s\n", CurrentFixSaveString);
             save_current_fix();
         }
         GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
@@ -64,15 +64,25 @@ _Bool checkControlConditions(){
     } else if (VHFToggle == 1){
         GPIO_toggleOutputOnPin(GPIO_PORT_P4, GPIO_PIN7);
         VHFToggle = 0;
-        return true;
-
-    } else
-        return true;
+    }
+    if(GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN2) | GPIO_PIN2)
+        return false;
+    return true;
 }
 
 //update the overall set of configs from ParameterString
 void updateConfigString(){
-
+    if(strlen(ParameterString) == 15){
+        //BatteryLow = ParameterString[1] - '0';
+        Config.GPS = (ParameterString[2]-'0') * 10 + (ParameterString[3]-'0');
+        Config.GTO = (ParameterString[4]-'0');
+        Config.ITF = (ParameterString[5]-'0');
+        Config.ITD = (ParameterString[6]-'0');
+        Config.ICT = (ParameterString[7]-'0') * 10 + (ParameterString[8]-'0');
+        Config.ICR = (ParameterString[9]-'0');
+        Config.VST = (ParameterString[10]-'0') * 10 + (ParameterString[11]-'0');
+        Config.VET = (ParameterString[12]-'0') * 10 + (ParameterString[13]-'0');
+    }
 }
 
 void setDateTime()

@@ -62,6 +62,7 @@ extern volatile uint8_t VHFSecOnCount; //On startup, this gets incremented and i
 volatile GPSDataStruct GPSData;
 volatile GPSDataStruct FinalGPSData;
 volatile Configparameters Config;
+extern volatile int BatteryLow;
 
 //GPS Globals
 volatile char dataString[300]; //Raw characters from the buffer are put in here
