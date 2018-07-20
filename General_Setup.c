@@ -52,9 +52,9 @@ _Bool checkControlConditions(){
 
         if(FinalGPSData.HDOP < 20){
             /* write FinalGPSData to CurrentFixSaveString */
-            sprintf(CurrentFixSaveString, "%d,%d,%4.4f,%c,%5.4f,%c,%d,%1.2f"
+            sprintf(CurrentFixSaveString, "%d,%d,%4.4f,%c,%5.4f,%c,%1.2f"
                     , FinalGPSData.FixDate, FinalGPSData.FixTime, FinalGPSData.Lat, FinalGPSData.LatDir
-                    , FinalGPSData.Lon, FinalGPSData.LonDir, FinalGPSData.FixQuality, FinalGPSData.HDOP);
+                    , FinalGPSData.Lon, FinalGPSData.LonDir, FinalGPSData.HDOP);
             printf("%s\n", CurrentFixSaveString);
             save_current_fix();
         }

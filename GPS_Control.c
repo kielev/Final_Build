@@ -21,7 +21,7 @@ void GPSParse(){
         GPSData.LatDir = *strtok(NULL,",");
         GPSData.Lon = atof(strtok(NULL,","));
         GPSData.LonDir = *strtok(NULL,",");
-        GPSData.FixQuality = atoi(strtok(NULL,","));
+        strtok(NULL,",");
         strtok(NULL,",");
         GPSData.HDOP = atof(strtok(NULL,","));
     }

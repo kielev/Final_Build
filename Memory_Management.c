@@ -16,7 +16,7 @@ void pullOldFix(char* String, int n){
     String[0] = '\0';
 
    //Get current memory location
-   ReadFixCount[0] = *(uint8_t*) (0x0003E000); // should this 3E for transmission placeholder?
+   ReadFixCount[0] = *(uint8_t*) (0x0003E000);
    ReadFixCount[1] = *(uint8_t*) (0x0003E001);
 
    //Compute the offset for the save address
@@ -36,6 +36,17 @@ void pullOldFix(char* String, int n){
 
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
 void moveSentFix(int n){
+    //Get current memory location
+       ReadFixCount[0] = *(uint8_t*) (0x0003E000);
+       ReadFixCount[1] = *(uint8_t*) (0x0003E001);
+
+       //Compute the offset for the save address
+       unsigned offset = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
+       if(n > (offset/FIX_SIZE))
+       {
+           // don't try to read more than we have stored
+           n = offset/FIX_SIZE;
+       }
 
 }
 
