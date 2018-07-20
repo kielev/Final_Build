@@ -30,7 +30,7 @@ _Bool checkControlConditions(){
         } else if (condition == 1) {
             moveSentFix(IRIDIUMFIXES);
         } else if (condition == 2) {
-            moveSentFix(IRIDIUMFIXES);
+/            moveSentFix(IRIDIUMFIXES);
             updateConfigString();
         }
         GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
