@@ -16,7 +16,7 @@
 
 //Where Flash Bank 1 begins
 #define START_LOC 0x00020000
-#define FIX_SIZE 45
+#define FIX_SIZE 43
 #define SECTOR_CAPACITY 91 // Number of fixes that can be stored in a sector
 
 //Flash Globals
