@@ -45,15 +45,17 @@ void RTC_C_IRQHandler(void)
 
     if (status & RTC_C_TIME_EVENT_INTERRUPT)
     {
-        if((SystemTime.hours % Config.GPS) == 0){
+        if((SystemTime.hours % Config.GPS) == 0 || GPSQuickRetry == true){
             GPSEn = 1;
+            GPSQuickRetry = false;
             EnableSysTick();
         }
 
-        if(!(SystemTime.hours % Config.ICT)
+        if((!(SystemTime.hours % Config.ICT)
                 && (((SystemTime.dayOfmonth-1) / 7) % Config.ITF == (Config.ITF-1)) // 1 - Every Week, 2 - 8-14,22-28, 3 - 15-21
-                && (SystemTime.dayOfWeek == Config.ITD)){
+                && (SystemTime.dayOfWeek == Config.ITD)) || IridiumQuickRetry == true){
             IridiumEn = 1;
+            IridiumQuickRetry == false;
         }
 
         if((SystemTime.hours % Config.VST) == 0 || (SystemTime.hours % Config.VET) == 0)

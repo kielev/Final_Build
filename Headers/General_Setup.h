@@ -19,7 +19,7 @@
 #ifndef PINSETUP_H_
 #define PINSETUP_H_
 
-#define IRIDIUMFIXES 6
+#define IRIDIUMFIXES 7
 
 
 _Bool checkControlConditions(void);
