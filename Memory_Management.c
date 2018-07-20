@@ -54,7 +54,6 @@ void pullOldFix(char* String, int n){
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
 void moveSentFix(int n){
     uint8_t ReadFixCount[2]; //This stores the current sector position and current sector read out from flash
-    String[0] = '\0';
     uint8_t TransmitFixCount[2]; // Last transmission sector position and sector
 
    //Get current memory location
@@ -76,16 +75,16 @@ void moveSentFix(int n){
    }
        n = maxFixesTransmittable;
 
-   int sectorRemain = SECTOR_SIZE - TransmitFixCount[0];
+   int sectorRemain = SECTOR_CAPACITY - TransmitFixCount[0];
    // This assumes n won't be larger than SECTOR_SIZE
    if(n > sectorRemain)
    {
-       do
        MemPlaceholder[0] = n - sectorRemain;
+       do
        {
            MemPlaceholder[1] = TransmitFixCount[1]++;
-           MemPlaceholder[0] -= MemPlaceholder[0] > SECTOR_SIZE ? SECTOR_SIZE : 0;
-       } while(MemPlaceholder[0] > SECTOR_SIZE);
+           MemPlaceholder[0] -= MemPlaceholder[0] > SECTOR_CAPACITY ? SECTOR_CAPACITY : 0;
+       } while(MemPlaceholder[0] > SECTOR_CAPACITY);
    }
    else
    {
