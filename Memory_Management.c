@@ -195,7 +195,7 @@ void save_current_fix(void)
         FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, CurSector); //unprotect sector
         FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
         FlashCtl_programMemory(CurrentFixSaveString,
-                               (void*) 0x00020000 + offset, FIX_SIZE); //write the data
+                               (void*) 0x00020000 + offset, FIX_SIZE+1); //write the data
         FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, CurSector); //protect sector
     }
 

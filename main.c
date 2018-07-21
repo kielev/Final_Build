@@ -20,11 +20,20 @@ int main(void)
 
     initClocks();
 
+    MAP_PSS_disableHighSide();
+
+    // Enable all SRAM bank retentions prior to going to LPM3
+    SYSCTL->SRAM_BANKRET |= SYSCTL_SRAM_BANKRET_BNK7_RET;
+
     RTC_setup();
+
+    reset_memory_locator();
 
     readout_config_params();
 
     store_config_params();
+
+
 
     /** set for time when nothing will run */
     SetTime.hours = 12;
@@ -35,6 +44,7 @@ int main(void)
     SetTime.year = 18;
 
     setDateTime();
+
 
     MAP_WDT_A_startTimer();
 
