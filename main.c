@@ -33,15 +33,13 @@ int main(void)
 
     store_config_params();
 
-
-
     /** set for time when nothing will run */
     SetTime.hours = 12;
     SetTime.minutes = 45;
     SetTime.seconds = 00;
     SetTime.dayOfmonth = 21;
     SetTime.month = 7;
-    SetTime.year = 18;
+    SetTime.year = 2018;
 
     setDateTime();
 

@@ -12,7 +12,7 @@ void GPSParse(){
     char* dateString = NULL;
 
     if(!strncmp(&GPSString[3], "GGA", 3) && strlen(GPSString) > 55){
-        sprintf(dateString, "%d%d%d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
+        sprintf(dateString, "%.2d%.2d%.2d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
         GPSData.FixDate = atoi(dateString);
         strtok(GPSString,",");
         GPSData.FixTime = atoi(strtok(NULL,","));
