@@ -11,6 +11,7 @@ volatile _Bool MemoryFull = 0;
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 //Function to pull oldest unsent fixes and assemble a string
 void pullOldFix(char* String, int n){
@@ -254,7 +255,7 @@ void memory_test()
     char testStr[100] = {'\0'};
 
     int i;
-    for(i = 0; i < 2*SECTOR_CAPACITY; ++i)
+    for(i = 0; i < 2; ++i)
     {
         sprintf(testStr, "$GPGGA,%.2d%.2d%.2d,%.3f,N,$.3f,W,1,%.2d,%.1f,%.1f,M,%.1f,M,,,*$.2d"
                 , SystemTime.hours, SystemTime.minutes, SystemTime.seconds, rand()%9999 + 0.1*(float)rand()
