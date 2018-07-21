@@ -14,7 +14,15 @@ _Bool checkControlConditions(){
     int condition = 0;
     int retry = -1;
 
-    if (IridiumEn == 1){
+
+    if (GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN3) == GPIO_INPUT_PIN_HIGH) {
+
+        IOSetup(); //Initializes all of the pins in the most efficient way possible to keep battery life okay.
+        MAP_PCM_enableRudeMode();
+        MAP_PCM_gotoLPM4(); //this is for storing it on a shelf for an extended period of time. Uses the least power
+        //for modes besides 4.5.
+
+    } else if (IridiumEn == 1) {
         //Iridium On
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
 
@@ -36,7 +44,7 @@ _Bool checkControlConditions(){
         GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
         return false;
 
-    } else if (GPSEn == 1){
+    } else if (GPSEn == 1) {
         //GPS On
         GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
         FinalGPSData.HDOP = 20;
@@ -61,7 +69,7 @@ _Bool checkControlConditions(){
         GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
         return false;
 
-    } else if (VHFToggle == 1){
+    } else if (VHFToggle == 1) {
         GPIO_toggleOutputOnPin(GPIO_PORT_P4, GPIO_PIN7);
         VHFToggle = 0;
     }
@@ -82,6 +90,7 @@ void updateConfigString(){
         Config.ICR = (ParameterString[9]-'0');
         Config.VST = (ParameterString[10]-'0') * 10 + (ParameterString[11]-'0');
         Config.VET = (ParameterString[12]-'0') * 10 + (ParameterString[13]-'0');
+        store_config_params();
     }
 }
 
@@ -157,6 +166,7 @@ void updateConfigGlobal(void){
         SetTime.seconds = pc_set_time.second;
         setDateTime();
     }
+    store_config_params();
 }
 
 _Bool newConfigReceivedPC()
@@ -283,6 +293,7 @@ void RTC_setup(void)
     /* Enable interrupts and go to sleep. */
     MAP_Interrupt_enableInterrupt(INT_RTC_C);
 }
+
 
 void EnableSysTick(void)
 {

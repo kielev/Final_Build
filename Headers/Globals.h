@@ -61,7 +61,7 @@ extern volatile uint8_t VHFSecOnCount; //On startup, this gets incremented and i
 //Cool structure I made to store all of the parameters obtained through the UART connection
 volatile GPSDataStruct GPSData;
 volatile GPSDataStruct FinalGPSData;
-volatile Configparameters Config;
+extern volatile Configparameters Config;
 extern volatile int BatteryLow;
 
 //GPS Globals

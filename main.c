@@ -22,6 +22,20 @@ int main(void)
 
     RTC_setup();
 
+    readout_config_params();
+
+    store_config_params();
+
+    /** set for time when nothing will run */
+    SetTime.hours = 12;
+    SetTime.minutes = 45;
+    SetTime.seconds = 00;
+    SetTime.dayOfmonth = 21;
+    SetTime.month = 7;
+    SetTime.year = 18;
+
+    setDateTime();
+
     MAP_WDT_A_startTimer();
 
     while(1)
@@ -103,32 +117,6 @@ void PORT4_IRQHandler(void)
     if (status & GPIO_PIN3)
     {
         MAP_RTC_C_startClock(); //Start the RTC
-
-        //Check for the UBS present
-        if (MAP_GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN2) == 1)
-        {
-            //initPCUART(); //Initialize the PC UART
-            USBPresentFlag = 1; //USB present
-            GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
-            GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
-            GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN7);
-        }
-        else
-        {
-            MagnetRemovedFlag = 1; //USB is not present, magnet is removed.
-            //VHFStartUpCount = 0; //Clear the timer for the VHF beacon that occurs on system start up.
-            EnableSysTick();
-        }
-    }
-
-    if (status & GPIO_PIN2)
-    {
-        //initPCUART();
-        MAP_RTC_C_startClock();
-        USBPresentFlag = 1;
-        GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
-        GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
-        GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN7);
     }
 }
 

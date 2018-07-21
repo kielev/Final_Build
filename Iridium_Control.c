@@ -11,7 +11,7 @@
 //Function to send a string of any length up to max
 int sendIridiumString(char * String){
     char* IMessage;
-    int x = 0, ret = 0;
+    int x = 0;
 
     Iridium_puts("AT\r");
     while(strncmp("OK",IridiumString,2) != 0 && x < 100){
@@ -52,12 +52,12 @@ int sendIridiumString(char * String){
         Delay1ms(1);
         x++;
     }
-    if(x >= 2000){
+    if(x >= 2000 ||strlen(IridiumString) < 7 || strncmp(&IridiumString[8],"2",1) > 0){
         return 0;
     }
     x = 0;
 
-    if(!strncmp(&IridiumString[14],"1",1)){
+    if(!strncmp(&IridiumString[14],"1,",2)){
         Iridium_puts("AT+SBDRT\r");
         strcpy(IridiumString, "NO");
         while(strncmp("+SBDRT",IridiumString,6) != 0 && x < 2000){
