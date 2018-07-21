@@ -27,7 +27,7 @@ int main(void)
 
     RTC_setup();
 
-    reset_memory_locator();
+    //reset_memory_locator();
 
     readout_config_params();
 
