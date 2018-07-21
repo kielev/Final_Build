@@ -20,14 +20,14 @@
 #define SECTOR_CAPACITY 91 // Number of fixes that can be stored in a sector
 
 //Flash Globals
-static volatile char CurrentFixSaveString[FIX_SIZE + 1]; //This is the string that is constructed that has the time, date, lat, long, and quality
+volatile char CurrentFixSaveString[FIX_SIZE + 1]; //This is the string that is constructed that has the time, date, lat, long, and quality
 //in it that came from the GPS when a fix was to be obtained. When there isn't a fix, it's populated properly before getting
 //written to flash.
-static volatile char FixRead[FIX_SIZE + 1]; //Stores the 45  bytes from flash that has a fix in it, it's 46 length for the end character
-static volatile char SectorRead[4097]; //Same, but this one can store an entire sector.
-static volatile uint8_t FixMemoryLocator[2]; //FixMemoryLocator[0] stores position in the current sector, range 0-90. //??
+volatile char FixRead[FIX_SIZE + 1]; //Stores the 45  bytes from flash that has a fix in it, it's 46 length for the end character
+volatile char SectorRead[4097]; //Same, but this one can store an entire sector.
+volatile uint8_t FixMemoryLocator[2]; //FixMemoryLocator[0] stores position in the current sector, range 0-90. //??
 //FixMemoryLocator[1] stores the current sector, range 0-44.
-static volatile uint8_t MemPlaceholder[2]; //MemPlaceholder[0] stores position in the readout sector, range 0-128. //??not sure
+volatile uint8_t MemPlaceholder[2]; //MemPlaceholder[0] stores position in the readout sector, range 0-128. //??not sure
 //MemPlaceholder[1] stores the readout sector, range 0-44
 
 //TODO EK 7-14-2018 Function to pull oldest unsent fixes and assemble a string
