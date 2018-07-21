@@ -38,6 +38,9 @@ int main(void)
 
     MAP_WDT_A_startTimer();
 
+    // ST 7-21-2018 Remove this after testing that flash memory functions correctly
+    memory_test();
+
     while(1)
     {
         if(checkControlConditions()){

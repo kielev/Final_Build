@@ -8,7 +8,9 @@
 #include "Headers/Memory_Management.h"
 
 volatile _Bool MemoryFull = 0;
-
+#include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 //Function to pull oldest unsent fixes and assemble a string
 void pullOldFix(char* String, int n){
@@ -244,6 +246,28 @@ void readout_sector(unsigned startposition)
         SectorRead[i] = *(uint8_t*) (i + startposition);
     }
     SectorRead[4096] = '\0';
+}
+
+void memory_test()
+{
+    srand(time(0));
+    char testStr[100] = {'\0'};
+
+    int i;
+    for(i = 0; i < 2*SECTOR_CAPACITY; ++i)
+    {
+        sprintf(testStr, "$GPGGA,%.2d%.2d%.2d,%.3f,N,$.3f,W,1,%.2d,%.1f,%.1f,M,%.1f,M,,,*$.2d"
+                , SystemTime.hours, SystemTime.minutes, SystemTime.seconds, rand()%9999 + 0.1*(float)rand()
+                , rand()%9999 + 0.1*(float)rand(), rand() % 31, rand()%20 + 0.1*(float)rand()
+                , rand()%1000 + 0.1*(float)rand(), rand()%1000 + 0.1*(float)rand(), rand()%98 + 1);
+        strcpy(GPSString, testStr);
+        GPSParse();
+        sprintf(CurrentFixSaveString, "%d,%d,%4.4f,%c,%5.4f,%c,%1.2f"
+                            , GPSData.FixDate, GPSData.FixTime, GPSData.Lat, GPSData.LatDir
+                            , GPSData.Lon, GPSData.LonDir, GPSData.HDOP);
+                    //printf("%s\n", CurrentFixSaveString);
+        save_current_fix();
+    }
 }
 
 //Reads out all of the NEW memory locations with data, see flash address cheat sheet if needed

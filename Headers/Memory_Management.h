@@ -58,6 +58,9 @@ void readout_last_known_location(void);
 //Reads out all of the memory locations with data
 void readout_memory_all(void);
 
+// Writes a bunch of random GPS fixes to memory
+void memory_test();
+
 //Resets the memory location tracking
 void reset_memory_locator(void);
 
