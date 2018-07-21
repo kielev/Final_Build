@@ -73,7 +73,7 @@ _Bool checkControlConditions(){
         GPIO_toggleOutputOnPin(GPIO_PORT_P4, GPIO_PIN7);
         VHFToggle = 0;
     }
-    if(GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN2) | GPIO_PIN2)
+    if(GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN2) == GPIO_INPUT_PIN_HIGH)
         return false;
     return true;
 }
@@ -239,8 +239,8 @@ void IOSetup(void)
     MAP_GPIO_interruptEdgeSelect(GPIO_PORT_P4, GPIO_PIN2, GPIO_LOW_TO_HIGH_TRANSITION);
     MAP_GPIO_interruptEdgeSelect(GPIO_PORT_P4, GPIO_PIN3, GPIO_HIGH_TO_LOW_TRANSITION);
     MAP_GPIO_clearInterruptFlag(GPIO_PORT_P4, GPIO_PIN2|GPIO_PIN3);
-    //MAP_GPIO_enableInterrupt(GPIO_PORT_P4, GPIO_PIN2|GPIO_PIN3);
-    //MAP_Interrupt_enableInterrupt(INT_PORT4);
+    MAP_GPIO_enableInterrupt(GPIO_PORT_P4, GPIO_PIN2|GPIO_PIN3);
+    MAP_Interrupt_enableInterrupt(INT_PORT4);
 
     //Setting up the enable pins for the GPS, VHF, and Xbee modules
     MAP_GPIO_setAsOutputPin(GPIO_PORT_P2, GPIO_PIN0);
