@@ -57,7 +57,6 @@ int main(void)
 
     printf("String: %s\n", sendString);
 
-    /*
     while(1)
     {
         if(checkControlConditions()){
@@ -73,7 +72,6 @@ int main(void)
             readout_memory_all();
         }
     }
-    */
 }
 
 
