@@ -19,6 +19,16 @@ void pullOldFix(char* String, int n){
     uint8_t TransmitFixCount[2]; // Last transmission sector position and sector
     String[0] = '\0';
 
+    String[0] = Config.GPS;
+    String[1] = Config.GTO;
+    String[2] = Config.ICR;
+    ConfigSave[3] = Config.ICT;
+    ConfigSave[4] = Config.ITD;
+    ConfigSave[5] = Config.ITF;
+    ConfigSave[6] = Config.VET;
+    ConfigSave[7] = Config.VST;
+    ConfigSave[8] = '\0';
+
    //Get current memory location
     TransmitFixCount[0] = *(uint8_t*) (0x0003E000);
     TransmitFixCount[1] = *(uint8_t*) (0x0003E001);
@@ -50,8 +60,10 @@ void pullOldFix(char* String, int n){
            offsetTransmit = 4096 * (TransmitFixCount[1]);
        }
        readout_fix(0x00020000 + (i * FIX_SIZE) + offsetTransmit);
+       strcat(String, '\n');
        strcat(String, FixRead);
    }
+   String[14+(FIX_SIZE+1)*n] = '\0';
 }
 
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
@@ -272,6 +284,10 @@ void memory_test()
                     //printf("%s\n", CurrentFixSaveString);
         save_current_fix();
     }
+
+    pullOldFix(sendString, 7);
+
+    printf("String: %s\n", sendString);
 }
 
 //Reads out all of the NEW memory locations with data, see flash address cheat sheet if needed
