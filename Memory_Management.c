@@ -48,7 +48,7 @@ void pullOldFix(char* String, int n){
            TransmitFixCount[1] += 1;
            offsetTransmit = 4096 * (TransmitFixCount[1]);
        }
-       readout_fix(i * FIX_SIZE + offsetTransmit);
+       readout_fix(0x00020000 + (i * FIX_SIZE) + offsetTransmit);
        strcat(String, FixRead);
    }
 }
@@ -195,22 +195,22 @@ void save_current_fix(void)
         FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, CurSector); //unprotect sector
         FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
         FlashCtl_programMemory(CurrentFixSaveString,
-                               (void*) 0x00020000 + offset, FIX_SIZE+1); //write the data
+                               (void*) 0x00020000 + offset, FIX_SIZE); //write the data
         FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, CurSector); //protect sector
     }
 
     //Update the memory location tracking
     //@NOTE 5-7-2018 128 = num of fixes that can be stored in sector
-    if (FixMemoryLocator[0] < SECTOR_CAPACITY)
+    if (ReadFixCount[0] < SECTOR_CAPACITY)
     {
-        FixMemoryLocator[0]++;
+        ReadFixCount[0]++;
     }
     else
     {
-        FixMemoryLocator[0] = 0;
-        if (FixMemoryLocator[1] < 27) //Sectors 28, 29, 30, and 31 reserved, not for location data
+        ReadFixCount[0] = 0;
+        if (ReadFixCount[1] < 27) //Sectors 28, 29, 30, and 31 reserved, not for location data
         {
-            FixMemoryLocator[1]++;
+            ReadFixCount[1]++;
         }
         else
         {
@@ -222,7 +222,7 @@ void save_current_fix(void)
     FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR31); //unprotect sector
     FlashCtl_eraseSector(0x0003F000); //erase the sector
     FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
-    FlashCtl_programMemory(FixMemoryLocator, (void*) 0x0003F000, 2); //write the data
+    FlashCtl_programMemory(ReadFixCount, (void*) 0x0003F000, 2); //write the data
     FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR31); //protect sector
 }
 
@@ -232,9 +232,11 @@ void readout_fix(unsigned startposition)
     int i = 0;
     for (i = 0; i < FIX_SIZE; i++)
     {
+        //printf("%c\n",*(uint8_t*) (i + startposition));
         FixRead[i] = *(uint8_t*) (i + startposition);
     }
     FixRead[FIX_SIZE] = '\0';
+    //printf("%s\n", FixRead);
 }
 
 //Reads out a complete sector given a starting address, see flash address cheat sheet if needed
@@ -256,13 +258,14 @@ void memory_test()
     int i;
     for(i = 0; i < 2*SECTOR_CAPACITY; ++i)
     {
-        sprintf(testStr, "$GPGGA,%.2d%.2d%.2d,%.3f,N,$.3f,W,1,%.2d,%.1f,%.1f,M,%.1f,M,,,*$.2d"
-                , SystemTime.hours, SystemTime.minutes, SystemTime.seconds, rand()%9999 + 0.1*(float)rand()
-                , rand()%9999 + 0.1*(float)rand(), rand() % 31, rand()%20 + 0.1*(float)rand()
-                , rand()%1000 + 0.1*(float)rand(), rand()%1000 + 0.1*(float)rand(), rand()%98 + 1);
+        sprintf(testStr, "$GPGGA,%.2d%.2d%.2d,%08.4f,N,%09.4f,W,1,%.2d,%.2f,%.1f,M,%.1f,M,,,*%.2d"
+                , SystemTime.hours, SystemTime.minutes, SystemTime.seconds, rand()%9999 + (float)rand()/RAND_MAX
+                , rand()%9999 + (float)rand()/RAND_MAX, rand() % 31, rand()%9+ (float)rand()/RAND_MAX
+                , rand()%1000 + (float)rand()/RAND_MAX, rand()%1000 + (float)rand()/RAND_MAX, rand()%98 + 1);
+        //printf("TestString: %s\n", testStr);
         strcpy(GPSString, testStr);
         GPSParse();
-        sprintf(CurrentFixSaveString, "%d,%d,%4.4f,%c,%5.4f,%c,%1.2f"
+        sprintf(CurrentFixSaveString, "%.6d,%.6d,%09.4f,%c,%010.4f,%c,%.2f"
                             , GPSData.FixDate, GPSData.FixTime, GPSData.Lat, GPSData.LatDir
                             , GPSData.Lon, GPSData.LonDir, GPSData.HDOP);
                     //printf("%s\n", CurrentFixSaveString);
@@ -367,6 +370,62 @@ void reset_memory_locator(void)
     FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
     FlashCtl_programMemory(FixMemoryLocator, (void*) 0x0003F000, 2); //write the data
     FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR31); //protect sector
+}
+
+//Initialize the memory location tracking
+void memory_locator_init(void)
+{
+    uint8_t FlashCheck[2]; //Store what's in flash here
+
+    //See if flash has been initialized
+    FlashCheck[0] = *(uint8_t*) (0x0003F000);
+    FlashCheck[1] = *(uint8_t*) (0x0003F001);
+
+    //If flash hasn't been initialized, set to 0
+    if (FlashCheck[0] == 255 && FlashCheck[1] == 255)
+    {
+        FixMemoryLocator[0] = 0;
+        FixMemoryLocator[1] = 0;
+        FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR31); //unprotect sector
+        FlashCtl_eraseSector(0x0003F000); //erase the sector
+        FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
+        FlashCtl_programMemory(FixMemoryLocator, (void*) 0x0003F000, 2); //write the data
+        FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR31); //protect sector
+    }
+    //If initialized already, readout values
+    else
+    {
+        FixMemoryLocator[0] = *(uint8_t*) (0x0003F000);
+        FixMemoryLocator[1] = *(uint8_t*) (0x0003F001);
+    }
+}
+
+//Initialize the placeholder for the next wireless transmission
+void transmission_placeholder_init(void)
+{
+    uint8_t FlashCheck[2]; //Store what's in flash here
+
+    //See if flash has been initialized
+    FlashCheck[0] = *(uint8_t*) (0x0003E000);
+    FlashCheck[1] = *(uint8_t*) (0x0003E001);
+
+    //If flash hasn't been initialized, set to 0
+    if (FlashCheck[0] == 255 && FlashCheck[1] == 255)
+    {
+        MemPlaceholder[0] = 0;
+        MemPlaceholder[1] = 0;
+        FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR30); //unprotect sector
+        FlashCtl_eraseSector(0x0003E000); //erase the sector
+        FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
+        FlashCtl_programMemory(MemPlaceholder, (void*) 0x0003E000, 2); //write the data
+        FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR30); //protect sector
+    }
+    //If initialized already, readout values
+    else
+    {
+        MemPlaceholder[0] = *(uint8_t*) (0x0003E000);
+        MemPlaceholder[1] = *(uint8_t*) (0x0003E001);
+    }
 }
 
 //Executes a mass erase of the flash

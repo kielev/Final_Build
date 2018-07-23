@@ -13,6 +13,8 @@
 
 int main(void)
 {
+
+    char sendString[340] = {'\0'};
     /* Stop Watchdog  */
     MAP_WDT_A_holdTimer();
 
@@ -27,7 +29,9 @@ int main(void)
 
     RTC_setup();
 
-    reset_memory_locator();
+    memory_locator_init();
+
+    transmission_placeholder_init();
 
     readout_config_params();
 
@@ -49,6 +53,11 @@ int main(void)
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
     memory_test();
 
+    pullOldFix(sendString, 7);
+
+    printf("String: %s\n", sendString);
+
+    /*
     while(1)
     {
         if(checkControlConditions()){
@@ -64,6 +73,7 @@ int main(void)
             readout_memory_all();
         }
     }
+    */
 }
 
 

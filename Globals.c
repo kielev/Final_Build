@@ -49,6 +49,7 @@ volatile int GPSindex = 0; //Same thing as PC string
 volatile int GPSGo = 0;
 volatile _Bool FixAttemptFailed = 0;
 volatile _Bool GPSQuickRetry = false;
+volatile _Bool RMCSetTime;
 
 //Iridium Globals
 volatile int Iridiumindex = 0;
