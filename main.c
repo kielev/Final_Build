@@ -53,10 +53,6 @@ int main(void)
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
     memory_test();
 
-    pullOldFix(sendString, 7);
-
-    printf("String: %s\n", sendString);
-
     while(1)
     {
         if(checkControlConditions()){
