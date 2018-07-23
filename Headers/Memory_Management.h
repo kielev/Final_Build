@@ -17,7 +17,7 @@
 //Where Flash Bank 1 begins
 #define START_LOC 0x00020000
 #define FIX_SIZE 43
-#define SECTOR_CAPACITY 91 // Number of fixes that can be stored in a sector
+#define SECTOR_CAPACITY 95 // Number of fixes that can be stored in a sector
 
 //Flash Globals
 volatile char CurrentFixSaveString[FIX_SIZE + 1]; //This is the string that is constructed that has the time, date, lat, long, and quality

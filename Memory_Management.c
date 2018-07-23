@@ -257,7 +257,7 @@ void memory_test()
     char testStr[100] = {'\0'};
 
     int i;
-    for(i = 0; i < 2; ++i)
+    for(i = 0; i < 2 * SECTOR_CAPACITY; ++i)
     {
         sprintf(testStr, "$GPGGA,%.2d%.2d%.2d,%08.4f,N,%09.4f,W,1,%.2d,%.2f,%.1f,M,%.1f,M,,,*%.2d"
                 , SystemTime.hours, SystemTime.minutes, SystemTime.seconds, rand()%9999 + (float)rand()/RAND_MAX
@@ -352,9 +352,13 @@ void readout_memory_all(void)
     for (i_1 = 0; i_1 < max; i_1++)
     {
         MAP_WDT_A_clearTimer();
-        while(!PC_READY_DATA);
+        while(!PC_READY_DATA)
+        {
+            NEW_DATA_READY = 0;
+            NEW_DATA_READY = 1;
+        }
         NEW_DATA_READY = 0;
-        readout_fix(0x00020000 + (i_1 * FIX_SIZE));
+        readout_fix(0x00020000 + (i_1 * FIX_SIZE) + (11 * ((i_1 - 1)/ (SECTOR_CAPACITY))));
         PC_READY_DATA = 0;
         NEW_DATA_READY = 1;
         //PC_puts(FixRead);
