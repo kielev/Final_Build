@@ -71,6 +71,7 @@ extern volatile int GPSindex; //Same thing as PC string
 extern volatile int GPSGo;
 extern volatile _Bool FixAttemptFailed;
 extern volatile _Bool GPSQuickRetry;
+extern volatile _Bool RMCSetTime;
 //volatile char CurrentFixSaveString[300];
 
 //Iridium Globals

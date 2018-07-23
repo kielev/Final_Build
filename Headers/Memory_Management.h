@@ -30,6 +30,8 @@ volatile uint8_t FixMemoryLocator[2]; //FixMemoryLocator[0] stores position in t
 volatile uint8_t MemPlaceholder[2]; //MemPlaceholder[0] stores position in the readout sector, range 0-128. //??not sure
 //MemPlaceholder[1] stores the readout sector, range 0-44
 
+extern volatile _Bool MemoryFull;
+
 //TODO EK 7-14-2018 Function to pull oldest unsent fixes and assemble a string
 void pullOldFix(char* String, int n);
 
@@ -63,6 +65,10 @@ void memory_test();
 
 //Resets the memory location tracking
 void reset_memory_locator(void);
+
+void memory_locator_init(void);
+
+void transmission_placeholder_init(void);
 
 //Executes a mass erase of the flash
 void flash_mass_erase(void);

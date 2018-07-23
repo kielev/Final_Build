@@ -9,7 +9,10 @@
 
 
 void GPSParse(){
-    char* dateString = NULL;
+    char dateString[6];
+    char *tokString;
+
+    SystemTime = MAP_RTC_C_getCalendarTime();
 
     if(!strncmp(&GPSString[3], "GGA", 3) && strlen(GPSString) > 55){
         sprintf(dateString, "%.2d%.2d%.2d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
@@ -25,9 +28,11 @@ void GPSParse(){
         GPSData.HDOP = atof(strtok(NULL,","));
     }
 
-    if(!strncmp(&GPSString[3], "RMC", 3) && strlen(GPSString) > 55){
+    if(!strncmp(&GPSString[3], "RMC", 3) && strlen(GPSString) > 55  && RMCSetTime == 0){
         strtok(GPSString,",");
-        dateString = strtok(NULL,",");
+
+        tokString = strtok(NULL,",");
+        strcpy(dateString, tokString);
 
         if (strlen(dateString) == 10) {
             SetTime.hours   = (dateString[0]-'0') * 10 + (dateString[1]-'0');
@@ -41,12 +46,16 @@ void GPSParse(){
         strtok(NULL,",");
         strtok(NULL,",");
         strtok(NULL,",");
-        dateString = strtok(NULL,",");
+
+        tokString = strtok(NULL,",");
+        strcpy(dateString, tokString);
+
         if (strlen(dateString) == 6) {
             SetTime.dayOfmonth = (dateString[0]-'0') * 10 + (dateString[1]-'0');
             SetTime.month      = (dateString[2]-'0') * 10 + (dateString[3]-'0');
             SetTime.year       = (dateString[4]-'0') * 10 + (dateString[5]-'0') + 2000;
 
+            RMCSetTime = 1;
             setDateTime();
         }
     }
