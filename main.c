@@ -14,7 +14,6 @@
 int main(void)
 {
 
-    char sendString[340] = {'\0'};
     /* Stop Watchdog  */
     MAP_WDT_A_holdTimer();
 
@@ -38,8 +37,8 @@ int main(void)
     store_config_params();
 
     /** set for time when nothing will run */
-    SetTime.hours = 12;
-    SetTime.minutes = 45;
+    SetTime.hours = 11;
+    SetTime.minutes = 59;
     SetTime.seconds = 00;
     SetTime.dayOfmonth = 21;
     SetTime.month = 7;
@@ -51,7 +50,7 @@ int main(void)
     MAP_WDT_A_startTimer();
 
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
-    memory_test();
+    //memory_test();
 
     while(1)
     {
