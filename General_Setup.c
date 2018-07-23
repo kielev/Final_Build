@@ -111,7 +111,7 @@ void setDateTime()
 
 //update the overall set of configs from passing globals
 void updateConfigGlobal(void){
-
+    LED_STATE = 1;
     if(SET_GPS_PRESSED)
     {
         SET_GPS_PRESSED = 0;
