@@ -352,10 +352,12 @@ void readout_memory_all(void)
         while(!PC_READY_DATA);
         NEW_DATA_READY = 0;
         readout_fix(0x00020000 + (i_1 * 0x00000020));
+        PC_READY_DATA = 0;
         NEW_DATA_READY = 1;
         //PC_puts(FixRead);
     }
     ALL_DATA_SENT = 1;
+    NEW_DATA_READY = 0;
 }
 
 //Resets the memory location tracking
