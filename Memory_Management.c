@@ -364,9 +364,13 @@ void readout_memory_all(void)
     for (i_1 = 0; i_1 < max; i_1++)
     {
         MAP_WDT_A_clearTimer();
-        while(!PC_READY_DATA);
+        while(!PC_READY_DATA)
+        {
+            NEW_DATA_READY = 0;
+            NEW_DATA_READY = 1;
+        }
         NEW_DATA_READY = 0;
-        readout_fix(0x00020000 + (i_1 * FIX_SIZE));
+        readout_fix(0x00020000 + (i_1 * FIX_SIZE) + (11 * ((i_1 - 1)/ (SECTOR_CAPACITY))));
         PC_READY_DATA = 0;
         NEW_DATA_READY = 1;
         //PC_puts(FixRead);
