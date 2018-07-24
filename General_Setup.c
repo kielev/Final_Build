@@ -26,7 +26,7 @@ _Bool checkControlConditions(){
         //Iridium On
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
 
-        pullOldFix(sendString, IRIDIUMFIXES);
+        pullOldFix(sendString, 1);
 
         while(retry < Config.ICR && condition == 0){
             condition = sendIridiumString(sendString);
@@ -42,6 +42,7 @@ _Bool checkControlConditions(){
             updateConfigString();
             printf("GPS: %d\n", Config.GPS);
         }
+        IridiumEn = 0;
         GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
         return false;
 
@@ -67,6 +68,7 @@ _Bool checkControlConditions(){
             //printf("%s\n", CurrentFixSaveString);
             save_current_fix();
         }
+        GPSEn = 0;
         GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
         return false;
 

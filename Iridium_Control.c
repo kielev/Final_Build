@@ -10,14 +10,20 @@
 
 //Function to send a string of any length up to max
 int sendIridiumString(char * String){
-    char IMessage[350];
+    char IMessage[500];
     char SBDIX[30] = {'\0'};
     char *tokString;
     int x = 0;
 
     Iridium_puts("AT\r");
     strcpy(IridiumString, "NO");
-    while(strncmp("OK",IridiumString,2) != 0);
+    while(strncmp("OK",IridiumString,2) != 0 && strncmp("ERROR",IridiumString,5) != 0);
+
+    if(!strncmp("ERROR",IridiumString,5)){
+        printf("ERROR\n");
+        return 0;
+    }
+    printf("made it\n");
 
     Iridium_puts("AT&K0\r");
     strcpy(IridiumString, "NO");
@@ -26,6 +32,7 @@ int sendIridiumString(char * String){
 
 
     sprintf(IMessage,"AT+SBDWT=%s\r", String);
+    printf("Message: %s\n", IMessage);
     Iridium_puts(IMessage);
     strcpy(IridiumString, "NO");
     while(strncmp("OK",IridiumString,2) != 0 && strncmp("ERROR",IridiumString,5) != 0);
@@ -35,6 +42,7 @@ int sendIridiumString(char * String){
     }
 
     //MAP_WDT_A_clearTimer();
+
 
     Iridium_puts("AT+SBDIX\r");
 
@@ -50,6 +58,7 @@ int sendIridiumString(char * String){
     strtok(NULL, ",");
     tokString = strtok(NULL, ",");
     if(!strcmp(tokString,"1")){
+        printf("Message Recieved\n");
         Iridium_puts("AT+SBDRT\r");
 
         while(strncmp("+SBDRT",IridiumString,6) != 0);
@@ -59,6 +68,7 @@ int sendIridiumString(char * String){
         strcpy(ParameterString, IridiumString); //copy to Parameter string to be stored
         return 2;
     }
+    printf("Message Sent\n");
 
     return 1;
 }
@@ -72,8 +82,8 @@ void Iridium_puts(char *outString)
 
   for(i=0 ; i<len ; i++)
   {
-      while((UCA0IFG & UCTXIFG) != UCTXIFG);  // wait until flag is set to indicate a new byte can be sent
-      UCA0TXBUF = (uint8_t) outString[i];;  // load register with byte to send
+      while((UCA1IFG & UCTXIFG) != UCTXIFG);  // wait until flag is set to indicate a new byte can be sent
+      UCA1TXBUF = (uint8_t) outString[i];;  // load register with byte to send
   }
 }
 
@@ -87,12 +97,12 @@ void initIridiumUART(void)
      */
     const eUSCI_UART_Config uartConfig = {
     EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-            39,                                     // BRDIV = 39
-            1,                                       // UCxBRF = 1
-            0,                                       // UCxBRS = 0
+            9,                                     // BRDIV = 39
+            12,                                       // UCxBRF = 1
+            0x0,                                       // UCxBRS = 0
             EUSCI_A_UART_NO_PARITY,                  // No Parity
             EUSCI_A_UART_LSB_FIRST,                  // LSB First
-            EUSCI_A_UART_TWO_STOP_BITS,               // Two stop bits
+            EUSCI_A_UART_ONE_STOP_BIT,               // Two stop bits
             EUSCI_A_UART_MODE,                       // UART mode
             EUSCI_A_UART_OVERSAMPLING_BAUDRATE_GENERATION  // Oversampling
             };
@@ -100,19 +110,19 @@ void initIridiumUART(void)
     // set up EUSCI0 in UART mode
     /* Selecting P1.2 and P1.3 in UART mode */
     MAP_GPIO_setAsPeripheralModuleFunctionInputPin(
-            GPIO_PORT_P1,
+            GPIO_PORT_P2,
             GPIO_PIN2 | GPIO_PIN3,
             GPIO_PRIMARY_MODULE_FUNCTION);
 
-    /* Configuring UART Module for communication with PC*/
-    MAP_UART_initModule(EUSCI_A0_BASE, &uartConfig);
+    /* Configuring UART Module for communication with Iridium*/
+    MAP_UART_initModule(EUSCI_A1_BASE, &uartConfig);
     /* Enable UART module */
-    MAP_UART_enableModule(EUSCI_A0_BASE);
+    MAP_UART_enableModule(EUSCI_A1_BASE);
 
     /* Enabling interrupts */
-    MAP_UART_enableInterrupt(EUSCI_A0_BASE, EUSCI_A_UART_RECEIVE_INTERRUPT);
-    MAP_Interrupt_enableInterrupt(INT_EUSCIA0);
-    MAP_Interrupt_disableInterrupt(INT_EUSCIA2);
+    MAP_UART_enableInterrupt(EUSCI_A1_BASE, EUSCI_A_UART_RECEIVE_INTERRUPT);
+    MAP_Interrupt_enableInterrupt(INT_EUSCIA1);
+    //MAP_Interrupt_disableInterrupt(INT_EUSCIA2);
 }
 
 void disableIridiumUART(void)

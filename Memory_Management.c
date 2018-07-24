@@ -278,12 +278,15 @@ void memory_test()
                             , GPSData.Lon, GPSData.LonDir, GPSData.HDOP);
                     //printf("%s\n", CurrentFixSaveString);
         save_current_fix();
+        MAP_WDT_A_clearTimer();
     }
 
-    pullOldFix(sendString, 7);
 
-    printf("String: %s\n", sendString);
-    printf("end\n");
+
+    /*pullOldFix(sendString, 7);
+
+    printf("String: %s\n", sendString);*/
+    printf("end of memory test\n");
 }
 
 //Reads out all of the NEW memory locations with data, see flash address cheat sheet if needed

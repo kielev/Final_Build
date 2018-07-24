@@ -21,6 +21,9 @@ int main(void)
 
     initClocks();
 
+    initIridiumUART();
+    //initGPSUART();
+
     MAP_PSS_disableHighSide();
 
     // Enable all SRAM bank retentions prior to going to LPM3
@@ -46,12 +49,15 @@ int main(void)
 
     setDateTime();
 
-
+    MAP_Interrupt_enableMaster();
     MAP_WDT_A_startTimer();
+
+    printf("setup complete\n");
+
     IridiumEn = 1;
 
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
-    //memory_test();
+    memory_test();
 
     while(1)
     {

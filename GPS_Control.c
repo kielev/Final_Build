@@ -108,7 +108,7 @@ void initGPSUART(void)
     /* Enabling interrupts */
     MAP_UART_enableInterrupt(EUSCI_A2_BASE, EUSCI_A_UART_RECEIVE_INTERRUPT);
     MAP_Interrupt_enableInterrupt(INT_EUSCIA2);
-    MAP_Interrupt_disableInterrupt(INT_EUSCIA0);
+    //MAP_Interrupt_disableInterrupt(INT_EUSCIA0);
 }
 
 void disableGPSUART(void)
