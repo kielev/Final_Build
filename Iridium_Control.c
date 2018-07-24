@@ -10,74 +10,56 @@
 
 //Function to send a string of any length up to max
 int sendIridiumString(char * String){
-    char* IMessage;
+    char IMessage[350];
+    char SBDIX[30] = {'\0'};
+    char *tokString;
     int x = 0;
 
     Iridium_puts("AT\r");
-    while(strncmp("OK",IridiumString,2) != 0 && x < 100){
-        Delay1ms(1);
-        x++;
-    }
-    if(x >= 100){
-        return 0;
-    }
-    x = 0;
+    strcpy(IridiumString, "NO");
+    while(strncmp("OK",IridiumString,2) != 0);
 
     Iridium_puts("AT&K0\r");
     strcpy(IridiumString, "NO");
-    while(strncmp("OK",IridiumString,2) != 0 && x < 100){
-        Delay1ms(1);
-        x++;
-    }
-    if(x >= 100){
-        return 0;
-    }
-    x = 0;
+    while(strncmp("OK",IridiumString,2) != 0);
+
+
 
     sprintf(IMessage,"AT+SBDWT=%s\r", String);
     Iridium_puts(IMessage);
     strcpy(IridiumString, "NO");
-    while(strncmp("OK",IridiumString,2) != 0 && strncmp("ERROR",IridiumString,5) != 0 && x < 100){
-        Delay1ms(1);
-        x++;
-    }
-    if(x >= 100){
+    while(strncmp("OK",IridiumString,2) != 0 && strncmp("ERROR",IridiumString,5) != 0);
+
+    if(!strncmp("ERROR",IridiumString,5)){
         return 0;
     }
-    x = 0;
+
+    //MAP_WDT_A_clearTimer();
 
     Iridium_puts("AT+SBDIX\r");
-    strcpy(IridiumString, "NO");
-    while(strncmp("+SBDIX",IridiumString,6) != 0 && x < 2000){
-        Delay1ms(1);
-        x++;
-    }
-    if(x >= 2000 ||strlen(IridiumString) < 7 || strncmp(&IridiumString[8],"2",1) > 0){
+
+    while(strncmp("+SBDIX",IridiumString,6) != 0);
+
+    strcpy(SBDIX, IridiumString);
+    tokString = strtok(SBDIX, ",");
+
+    if(atoi(&tokString[7]) > 2 || strlen(SBDIX) < 10){
         return 0;
     }
-    x = 0;
 
-    if(!strncmp(&IridiumString[14],"1,",2)){
+    strtok(NULL, ",");
+    tokString = strtok(NULL, ",");
+    if(!strcmp(tokString,"1")){
         Iridium_puts("AT+SBDRT\r");
-        strcpy(IridiumString, "NO");
-        while(strncmp("+SBDRT",IridiumString,6) != 0 && x < 2000){
-            Delay1ms(1);
-            x++;
-        }
-        if(x >= 2000){
-            return 1;
-        }
-        x=0;
-        while(strncmp("$",IridiumString,1) != 0 && x < 2000){
-            Delay1ms(1);
-            x++;
-        }
-        if(x >= 2000){
-            return 1;
-        }
-        strcpy(ParameterString, IridiumString);
+
+        while(strncmp("+SBDRT",IridiumString,6) != 0);
+
+        while(strncmp("$",IridiumString,1) != 0); //checks for parameter string only
+
+        strcpy(ParameterString, IridiumString); //copy to Parameter string to be stored
         return 2;
     }
+
     return 1;
 }
 

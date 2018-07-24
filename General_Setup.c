@@ -40,6 +40,7 @@ _Bool checkControlConditions(){
         } else if (condition == 2) {
             moveSentFix(IRIDIUMFIXES);
             updateConfigString();
+            printf("GPS: %d\n", Config.GPS);
         }
         GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
         return false;
@@ -80,7 +81,7 @@ _Bool checkControlConditions(){
 
 //update the overall set of configs from ParameterString
 void updateConfigString(){
-    if(strlen(ParameterString) == 15){
+    if(strlen(ParameterString) == 14){
         //BatteryLow = ParameterString[1] - '0';
         Config.GPS = (ParameterString[2]-'0') * 10 + (ParameterString[3]-'0');
         Config.GTO = (ParameterString[4]-'0');
@@ -111,7 +112,6 @@ void setDateTime()
 
 //update the overall set of configs from passing globals
 void updateConfigGlobal(void){
-    LED_STATE = 1;
     if(SET_GPS_PRESSED)
     {
         SET_GPS_PRESSED = 0;
@@ -159,7 +159,7 @@ void updateConfigGlobal(void){
         SET_TIME_PRESSED = 0;
         // System time
         SetTime.month = pc_set_time.month;
-        SetTime.year = pc_set_time.year;
+        SetTime.year = pc_set_time.year - 2000;
         SetTime.dayOfmonth = pc_set_time.day;
         SetTime.hours = pc_set_time.hour;
         SetTime.minutes = pc_set_time.minute;
