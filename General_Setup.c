@@ -40,6 +40,7 @@ _Bool checkControlConditions(){
         } else if (condition == 2) {
             moveSentFix(IRIDIUMFIXES);
             updateConfigString();
+            printf("GPS: %d\n", Config.GPS);
         }
         GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
         return false;
@@ -80,7 +81,7 @@ _Bool checkControlConditions(){
 
 //update the overall set of configs from ParameterString
 void updateConfigString(){
-    if(strlen(ParameterString) == 15){
+    if(strlen(ParameterString) == 14){
         //BatteryLow = ParameterString[1] - '0';
         Config.GPS = (ParameterString[2]-'0') * 10 + (ParameterString[3]-'0');
         Config.GTO = (ParameterString[4]-'0');
