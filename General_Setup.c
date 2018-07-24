@@ -10,7 +10,7 @@
 
 //overall function for control of program returns true for sleep or false to run again
 _Bool checkControlConditions(){
-    char* sendString;
+    char sendString[340] = {'\0'};
     int condition = 0;
     int retry = -1;
 
@@ -60,7 +60,7 @@ _Bool checkControlConditions(){
 
         if(FinalGPSData.HDOP < 20){
             /* write FinalGPSData to CurrentFixSaveString */
-            sprintf(CurrentFixSaveString, "%d,%d,%4.4f,%c,%5.4f,%c,%1.2f"
+            sprintf(CurrentFixSaveString, "%.6d,%.6d,%09.4f,%c,%010.4f,%c,%.2f"
                     , FinalGPSData.FixDate, FinalGPSData.FixTime, FinalGPSData.Lat, FinalGPSData.LatDir
                     , FinalGPSData.Lon, FinalGPSData.LonDir, FinalGPSData.HDOP);
             //printf("%s\n", CurrentFixSaveString);
