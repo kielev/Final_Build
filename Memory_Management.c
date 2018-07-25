@@ -57,7 +57,7 @@ void pullOldFix(char* String, int n){
        strcat(String, FixRead);
        strcat(String, "\n");
    }
-   String[13+((FIX_SIZE+1)*n)] = '\0';
+   String[13+((FIX_SIZE+1)*n)] = '\r';
 }
 
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory

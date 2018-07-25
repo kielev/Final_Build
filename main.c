@@ -54,6 +54,8 @@ int main(void)
 
     printf("setup complete\n");
 
+    //IridiumConfigure();
+
     IridiumEn = 1;
 
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly

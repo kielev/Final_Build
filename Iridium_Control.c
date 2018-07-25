@@ -8,46 +8,67 @@
 #include "Headers/Iridium_Control.h"
 
 
+int IridiumConfigure(void){
+    Iridium_puts("AT&K0\r");
+    while(strncmp("OK",IridiumString,2) != 0);
+    IridiumString[0] = '\0';
+
+    Iridium_puts("AT+SBDMTA=1\r");
+    while(strncmp("OK",IridiumString,2) != 0);
+    IridiumString[0] = '\0';
+
+    Iridium_puts("AT&W0\r");
+    while(strncmp("OK",IridiumString,2) != 0);
+    IridiumString[0] = '\0';
+
+    Iridium_puts("AT&Y0\r");
+    while(strncmp("OK",IridiumString,2) != 0);
+    IridiumString[0] = '\0';
+
+    printf("Iridium Configure Finished\n");
+}
+
+
 //Function to send a string of any length up to max
 int sendIridiumString(char * String){
-    char IMessage[500];
     char SBDIX[30] = {'\0'};
     char *tokString;
     int x = 0;
 
-    Iridium_puts("AT\r");
-    strcpy(IridiumString, "NO");
+    /*Iridium_puts("AT+CIER=1,0,1\r");
     while(strncmp("OK",IridiumString,2) != 0 && strncmp("ERROR",IridiumString,5) != 0);
-
+    IridiumString[0] = '\0';
     if(!strncmp("ERROR",IridiumString,5)){
-        printf("ERROR\n");
-        return 0;
-    }
-    printf("made it\n");
-
-    Iridium_puts("AT&K0\r");
-    strcpy(IridiumString, "NO");
-    while(strncmp("OK",IridiumString,2) != 0);
-
-
-
-    sprintf(IMessage,"AT+SBDWT=%s\r", String);
-    printf("Message: %s\n", IMessage);
-    Iridium_puts(IMessage);
-    strcpy(IridiumString, "NO");
-    while(strncmp("OK",IridiumString,2) != 0 && strncmp("ERROR",IridiumString,5) != 0);
-
-    if(!strncmp("ERROR",IridiumString,5)){
-        return 0;
+            printf("ERROR\n");
+            return 0;
     }
 
-    //MAP_WDT_A_clearTimer();
+    while(strncmp("+CIEV: 1,1",IridiumString,10) != 0 && x < 1000){
+        printf("CIEV: %s\n", IridiumString);
+        Delay1ms(1);
+        x++;
+    }
+    IridiumString[0] = '\0';
 
+    if(x >= 1000){
+        return 0;
+    }*/
 
+    printf("Message: %s\n", String);
+
+    Iridium_puts("AT+SBDWT\r");
+    while(strncmp("READY",IridiumString,5) != 0);
+
+    Iridium_puts(String);
+    while(strncmp("OK",IridiumString,2) != 0 && strncmp("0",IridiumString,1) != 0); //
+
+    MAP_WDT_A_clearTimer();
+
+    printf("SBDIX\n");
     Iridium_puts("AT+SBDIX\r");
 
     while(strncmp("+SBDIX",IridiumString,6) != 0);
-
+    printf("SBDIX: %s\n", IridiumString);
     strcpy(SBDIX, IridiumString);
     tokString = strtok(SBDIX, ",");
 

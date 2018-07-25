@@ -26,7 +26,7 @@ _Bool checkControlConditions(){
         //Iridium On
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
 
-        pullOldFix(sendString, 1);
+        pullOldFix(sendString, IRIDIUMFIXES);
 
         while(retry < Config.ICR && condition == 0){
             condition = sendIridiumString(sendString);
