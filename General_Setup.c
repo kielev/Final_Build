@@ -58,24 +58,25 @@ _Bool checkControlConditions(){
     } else if (GPSEn == 1) {
         //GPS On
         GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
-        FinalGPSData.HDOP = 20;
+        FinalGPSData.HDOP = 10;
 
         while(GPSEn == 1){
             if(GPSGo){
                 MAP_WDT_A_clearTimer();
                 GPSParse();
-
+                printf("%.6d,%.6d,%09.4f,%c,%010.4f,%c,%03.2f\n"
+                    , GPSData.FixDate, GPSData.FixTime, GPSData.Lat, GPSData.LatDir
+                    , GPSData.Lon, GPSData.LonDir, GPSData.HDOP);
                 if(GPSData.HDOP < FinalGPSData.HDOP)
                     FinalGPSData = GPSData;
             }
         }
 
-        if(FinalGPSData.HDOP < 20){
+        if(FinalGPSData.HDOP < 10){
             /* write FinalGPSData to CurrentFixSaveString */
-            sprintf(CurrentFixSaveString, "%.6d,%.6d,%09.4f,%c,%010.4f,%c,%.2f"
+            sprintf(CurrentFixSaveString, "%.6d,%.6d,%09.4f,%c,%010.4f,%c,%03.2f"
                     , FinalGPSData.FixDate, FinalGPSData.FixTime, FinalGPSData.Lat, FinalGPSData.LatDir
                     , FinalGPSData.Lon, FinalGPSData.LonDir, FinalGPSData.HDOP);
-            //printf("%s\n", CurrentFixSaveString);
             save_current_fix();
         }
         GPSEn = 0;

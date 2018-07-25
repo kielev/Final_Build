@@ -52,14 +52,10 @@ int main(void)
     MAP_Interrupt_enableMaster();
     MAP_WDT_A_startTimer();
 
-    printf("setup complete\n");
-
-    //IridiumConfigure();
-
-    IridiumEn = 1;
 
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
-    memory_test();
+    //memory_test();
+    GPSEn = true;
 
     while(1)
     {
@@ -91,14 +87,15 @@ void RTC_C_IRQHandler(void)
 
     if (status & RTC_C_TIME_EVENT_INTERRUPT)
     {
-        if((SystemTime.hours % Config.GPS) == 0){
+        if(((SystemTime.hours % Config.GPS) == 0)  && BatteryLow == 0){
+            RMCSetTime = 0;
             GPSEn = 1;
             EnableSysTick();
         }
 
-        if((!(SystemTime.hours % Config.ICT)
+        if(((!(SystemTime.hours % Config.ICT)
                 && (((SystemTime.dayOfmonth-1) / 7) % Config.ITF == (Config.ITF-1)) // 1 - Every Week, 2 - 8-14,22-28, 3 - 15-21
-                && (SystemTime.dayOfWeek == Config.ITD)) || IridiumQuickRetry == true){
+                && (SystemTime.dayOfWeek == Config.ITD)) || IridiumQuickRetry == true) && BatteryLow == 0){
             IridiumEn = 1;
             IridiumQuickRetry = false;
         }
@@ -121,6 +118,9 @@ void SysTick_IRQHandler(void)
             GPSEn = 0;
             GPSSecOnCount = 0;
             DisableSysTick();
+
+            //For Full System Test Remove For Operation
+            IridiumEn = 1;
         }
     }
 }
