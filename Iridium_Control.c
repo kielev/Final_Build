@@ -8,90 +8,192 @@
 #include "Headers/Iridium_Control.h"
 
 
-int IridiumConfigure(void){
-    Iridium_puts("AT&K0\r");
-    while(strncmp("OK",IridiumString,2) != 0);
-    IridiumString[0] = '\0';
-
-    Iridium_puts("AT+SBDMTA=1\r");
-    while(strncmp("OK",IridiumString,2) != 0);
-    IridiumString[0] = '\0';
-
-    Iridium_puts("AT&W0\r");
-    while(strncmp("OK",IridiumString,2) != 0);
-    IridiumString[0] = '\0';
-
-    Iridium_puts("AT&Y0\r");
-    while(strncmp("OK",IridiumString,2) != 0);
-    IridiumString[0] = '\0';
-
-    printf("Iridium Configure Finished\n");
-}
-
 
 //Function to send a string of any length up to max
 int sendIridiumString(char * String){
     char SBDIX[30] = {'\0'};
     char *tokString;
-    int x = 0;
+    int ret = 0;
 
-    /*Iridium_puts("AT+CIER=1,0,1\r");
-    while(strncmp("OK",IridiumString,2) != 0 && strncmp("ERROR",IridiumString,5) != 0);
-    IridiumString[0] = '\0';
-    if(!strncmp("ERROR",IridiumString,5)){
-            printf("ERROR\n");
-            return 0;
+    printf("\nCommand: AT\n");
+    Iridium_puts("AT\r");
+    while(IridiumGo == 0);
+    if(!strncmp("AT",IridiumString,2))
+        IridiumGo = 0;
+    else{
+        printf("AT echo error %s\n", IridiumString);
+        IridiumGo = 0;
     }
 
-    while(strncmp("+CIEV: 1,1",IridiumString,10) != 0 && x < 1000){
-        printf("CIEV: %s\n", IridiumString);
-        Delay1ms(1);
-        x++;
-    }
-    IridiumString[0] = '\0';
-
-    if(x >= 1000){
+    while(IridiumGo == 0);
+    if(!strncmp("OK",IridiumString,2)){
+        IridiumGo = 0;
+    } else {
+        IridiumGo = 0;
+        printf("Error AT %s\n", IridiumString);
         return 0;
-    }*/
+    }
 
-    printf("Message: %s\n", String);
+    printf("\nCommand: AT&K0\n");
+    Iridium_puts("AT&K0\r");
+    while(IridiumGo == 0);
+    if(!strncmp("AT&K0",IridiumString,5))
+        IridiumGo = 0;
+    else{
+        printf("AT&K0 echo error %s\n", IridiumString);
+        IridiumGo = 0;
+    }
 
+    while(IridiumGo == 0);
+    if(!strncmp("OK",IridiumString,2)){
+        IridiumGo = 0;
+    } else {
+        IridiumGo = 0;
+        printf("Error AT&K0 %s\n", IridiumString);
+        return 0;
+    }
+
+    printf("\nCommand: AT+SBDWT\n");
     Iridium_puts("AT+SBDWT\r");
-    while(strncmp("READY",IridiumString,5) != 0);
+    while(IridiumGo == 0);
+    if(!strncmp("AT+SBDWT",IridiumString,8))
+        IridiumGo = 0;
+    else{
+        printf("AT+SBDWT echo error %s\n", IridiumString);
+        IridiumGo = 0;
+    }
 
+    while(IridiumGo == 0);
+    if(!strncmp("READY",IridiumString,5)){
+        IridiumGo = 0;
+    } else {
+        IridiumGo = 0;
+        printf("Error AT+SBDWT %s\n", IridiumString);
+        return 0;
+    }
+
+    printf("\nCommand: message\n");
     Iridium_puts(String);
-    while(strncmp("OK",IridiumString,2) != 0 && strncmp("0",IridiumString,1) != 0); //
+    while(IridiumGo == 0);
+    if(!strncmp("OK",IridiumString,2) || !strncmp("0",IridiumString,1)){
+        IridiumGo = 0;
+    } else {
+        IridiumGo = 0;
+        printf("Error message %s\n", IridiumString);
+        return 0;
+    }
 
     MAP_WDT_A_clearTimer();
-
-    printf("SBDIX\n");
+    printf("\nCommand: AT+SBDIX\n");
     Iridium_puts("AT+SBDIX\r");
+    while(IridiumGo == 0);
+    if(!strncmp("AT",IridiumString,2) || !strncmp("\rAT",IridiumString,3))
+        IridiumGo = 0;
+    else{
+        printf("AT+SBDIX echo error %s\n", IridiumString);
+        IridiumGo = 0;
+    }
 
-    while(strncmp("+SBDIX",IridiumString,6) != 0);
-    printf("SBDIX: %s\n", IridiumString);
-    strcpy(SBDIX, IridiumString);
+    while(IridiumGo == 0);
+    if(!strncmp("+SBDIX",IridiumString,6)){
+        strcpy(SBDIX, IridiumString);
+        IridiumGo = 0;
+    } else {
+        printf("Error +SBDIX %s\n", IridiumString);
+        IridiumGo = 0;
+    }
+
+    while(IridiumGo == 0);
+    if(!strncmp("\r",IridiumString,1)){
+        IridiumGo = 0;
+    } else {
+        IridiumGo = 0;
+        printf("Error return %s\n", IridiumString);
+    }
+
+    while(IridiumGo == 0);
+    if(!strncmp("OK",IridiumString,2)){
+        IridiumGo = 0;
+    } else {
+        IridiumGo = 0;
+        printf("Error message %s\n", IridiumString);
+    }
+
+    printf("\nCommand: AT+SBDD0\n");
+    Iridium_puts("AT+SBDD0\r");
+    while(IridiumGo == 0);
+    if(!strncmp("AT",IridiumString,2))
+        IridiumGo = 0;
+    else{
+        printf("AT+SBDD0 echo error %s\n", IridiumString);
+        IridiumGo = 0;
+    }
+
+    while(IridiumGo == 0);
+    if(!strncmp("0",IridiumString,1)){
+        IridiumGo = 0;
+    } else {
+        printf("Error AT+SBDD0 %s\n", IridiumString);
+        IridiumGo = 0;
+    }
+
+    printf("message: %s --> ", SBDIX);
     tokString = strtok(SBDIX, ",");
-
-    if(atoi(&tokString[7]) > 2 || strlen(SBDIX) < 10){
-        return 0;
+    if(atoi(&tokString[8]) > 2){
+        printf("send failure - %d\n", atoi(&tokString[8]));
+        ret = 0;
+    } else{
+        printf("send success\n");
+        ret = 1;
     }
 
     strtok(NULL, ",");
     tokString = strtok(NULL, ",");
-    if(!strcmp(tokString,"1")){
-        printf("Message Recieved\n");
+    if(atoi(tokString) == 1){
+        printf("message queued\n");
+
         Iridium_puts("AT+SBDRT\r");
+        IridiumGo = 0;
+        while(IridiumGo == 0);
+        if(!strncmp("AT",IridiumString,2))
+            IridiumGo = 0;
+        else{
+            printf("AT+SBRT echo error %s\n", IridiumString);
+            IridiumGo = 0;
+        }
 
-        while(strncmp("+SBDRT",IridiumString,6) != 0);
+        while(IridiumGo == 0);
+        if(!strncmp("+SBDRT",IridiumString,6))
+            IridiumGo = 0;
+        else{
+            printf("AT+SBRT error %s\n", IridiumString);
+            IridiumGo = 0;
+        }
 
-        while(strncmp("$",IridiumString,1) != 0); //checks for parameter string only
+        while(IridiumGo == 0);
+        if(!strncmp("$",IridiumString,1)){
+            strcpy(ParameterString, IridiumString);
+            IridiumGo = 0;
+        } else {
+            printf("Message Error %s\n", IridiumString);
+            IridiumGo = 0;
+        }
 
-        strcpy(ParameterString, IridiumString); //copy to Parameter string to be stored
-        return 2;
+        while(IridiumGo == 0);
+        if(!strncmp("OK",IridiumString,2)){
+            IridiumGo = 0;
+        } else {
+            IridiumGo = 0;
+            printf("End Message Error %s\n", IridiumString);
+        }
+
+        printf("Received Message - %s\n", ParameterString);
+        return (ret+2);
+
+    } else {
+        printf("no message received - %d\n", atoi(tokString));
+        return ret;
     }
-    printf("Message Sent\n");
-
-    return 1;
 }
 
 

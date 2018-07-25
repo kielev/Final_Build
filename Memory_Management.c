@@ -63,7 +63,7 @@ void pullOldFix(char* String, int n){
 }
 
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
-void moveSentFix(int n){
+int moveSentFix(int n){
     uint8_t ReadFixCount[2]; //This stores the current sector position and current sector read out from flash
     uint8_t TransmitFixCount[2]; // Last transmission sector position and sector
 
@@ -104,6 +104,7 @@ void moveSentFix(int n){
    }
 
    transmission_placeholder_store();
+   return n;
 }
 
 //Store the configuration parameters to flash

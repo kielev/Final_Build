@@ -15,7 +15,6 @@
 #include "Headers/General_Setup.h"
 #include "Headers/Globals.h"
 
-int IridiumConfigure(void);
 
 //TODO EK 7-14-2018 Function to send a string of any length up to max
 int sendIridiumString(char * String);

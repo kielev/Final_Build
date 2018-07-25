@@ -40,7 +40,7 @@ int store_config_params(void);
 void readout_config_params(void);
 
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
-void moveSentFix(int n);
+int moveSentFix(int n);
 
 //Saves the current fix into memory and increments the location tracking
 void save_current_fix(void);

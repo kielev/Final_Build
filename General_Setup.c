@@ -12,6 +12,7 @@
 _Bool checkControlConditions(){
     char sendString[340] = {'\0'};
     int condition = 0;
+    int moreUnsent = 0;
     int retry = -1;
 
 
@@ -26,22 +27,30 @@ _Bool checkControlConditions(){
         //Iridium On
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
 
-        pullOldFix(sendString, IRIDIUMFIXES);
+        do{
+            MAP_WDT_A_clearTimer();
+            pullOldFix(sendString, IRIDIUMFIXES);
 
-        while(retry < Config.ICR && condition == 0){
-            condition = sendIridiumString(sendString);
-            retry++;
-        }
+            while(retry < Config.ICR && condition == 0){
+                condition = sendIridiumString(sendString);
+                retry++;
+            }
 
-        if(condition == 0){
-            IridiumQuickRetry = true;
-        } else if (condition == 1) {
-            moveSentFix(IRIDIUMFIXES);
-        } else if (condition == 2) {
-            moveSentFix(IRIDIUMFIXES);
-            updateConfigString();
-            printf("GPS: %d\n", Config.GPS);
-        }
+            if(condition == 0){
+                moreUnsent = 0;
+                IridiumQuickRetry = true;
+            } else if (condition == 1) {
+                moreUnsent = moveSentFix(IRIDIUMFIXES);
+            } else if (condition == 2) {
+                moreUnsent = 0;
+                updateConfigString();
+            } else if ((condition == 3)) {
+                moreUnsent = moveSentFix(IRIDIUMFIXES);
+                updateConfigString();
+                printf("GPS: %d\n", Config.GPS);
+            }
+        } while(moreUnsent == IRIDIUMFIXES);
+
         IridiumEn = 0;
         GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
         return false;
@@ -53,6 +62,7 @@ _Bool checkControlConditions(){
 
         while(GPSEn == 1){
             if(GPSGo){
+                MAP_WDT_A_clearTimer();
                 GPSParse();
 
                 if(GPSData.HDOP < FinalGPSData.HDOP)
