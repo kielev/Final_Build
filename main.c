@@ -59,6 +59,10 @@ int main(void)
 
     while(1)
     {
+        if(updateConfig == true){
+            readout_config_params();
+            readout_battery_counters();
+        }
         if(checkControlConditions()){
             MAP_PCM_enableRudeMode();
             MAP_PCM_gotoLPM3();
@@ -88,6 +92,7 @@ void RTC_C_IRQHandler(void)
     if (status & RTC_C_TIME_EVENT_INTERRUPT)
     {
         if(((SystemTime.hours % Config.GPS) == 0)  && BatteryLow == 0){
+            GPSCount += Config.GTO;
             RMCSetTime = 0;
             GPSEn = 1;
             EnableSysTick();
@@ -100,8 +105,16 @@ void RTC_C_IRQHandler(void)
             IridiumQuickRetry = false;
         }
 
-        if((SystemTime.hours % Config.VST) == 0 || (SystemTime.hours % Config.VET) == 0)
+        if((SystemTime.hours % Config.VST) == 0) {
             VHFToggle = 1;
+            if(Config.VST < Config.VET)
+                VHFCount += Config.VET - Config.VST;
+            else
+                VHFCount += (24-Config.VST) + Config.VET;
+        }
+        if((SystemTime.hours % Config.VET) == 0){
+            VHFToggle = 1;
+        }
     }
 }
 
@@ -141,6 +154,7 @@ void PORT4_IRQHandler(void)
     if (status & GPIO_PIN3)
     {
         MAP_RTC_C_startClock(); //Start the RTC
+        updateConfig = true;
     }
 }
 

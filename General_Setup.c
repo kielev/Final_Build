@@ -15,6 +15,7 @@ _Bool checkControlConditions(){
     int moreUnsent = 0;
     int retry = -1;
 
+    BatteryLow = batteryLowCalc();
 
     if (GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN3) == GPIO_INPUT_PIN_HIGH) {
 
@@ -33,6 +34,7 @@ _Bool checkControlConditions(){
 
             while(retry < Config.ICR && condition == 0){
                 condition = sendIridiumString(sendString);
+                IridiumCount++;
                 retry++;
             }
 
@@ -106,6 +108,11 @@ void updateConfigString(){
         Config.VET = (ParameterString[12]-'0') * 10 + (ParameterString[13]-'0');
         store_config_params();
     }
+}
+
+_Bool batteryLowCalc(){
+    int calc = (VHFUAH * VHFCount) + (IRIDUMUAT * IridiumCount) + (GPSUAM * GPSCount);
+    return ((BATTERYVALUE-calc)/(BATTERYVALUE/100) < BATTERYPERCENT )
 }
 
 void setDateTime()

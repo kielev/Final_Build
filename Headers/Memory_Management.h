@@ -39,6 +39,10 @@ int store_config_params(void);
 
 void readout_config_params(void);
 
+void store_battery_counters(void);
+
+void readout_battery_counters(void);
+
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
 int moveSentFix(int n);
 

@@ -20,6 +20,11 @@
 #define PINSETUP_H_
 
 #define IRIDIUMFIXES 7
+#define BATTERYVALUE 7200000
+#define BATTERYPERCENT 15
+#define VHFUAH 450
+#define IRIDIUMUAT 3000
+#define GPSUAM 550
 
 
 _Bool checkControlConditions(void);

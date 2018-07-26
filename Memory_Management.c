@@ -184,6 +184,74 @@ void readout_config_params(void)
     }
 }
 
+//Store the battery life counters to flash
+void store_battery_counters(void)
+{
+    //Declare save array
+    uint8_t BatSave[5];
+    BatSave[0] = IridiumCount;
+    BatSave[1] = GPSCount;
+    BatSave[2] = VHFCount;
+    BatSave[3] = BatteryLow;
+    BatSave[4] = '\0';
+
+    //Save the battery counters to flash
+    FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR29); //unprotect sector
+    FlashCtl_eraseSector(0x0003D000); //erase the sector
+    FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
+    FlashCtl_programMemory(BatSave, (void*) 0x0003D000, 4); //write the data
+    FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR29); //protect sector
+}
+
+//Readout the battery life counters into the proper variables
+void readout_battery_counters(void)
+{
+    uint8_t ClearThemAll = 0;
+
+    uint8_t FlashCheck[8]; //Store what's in flash here
+
+    //See if flash has been initialized
+    FlashCheck[0] = *(uint8_t*) (0x0003D000);
+    FlashCheck[1] = *(uint8_t*) (0x0003D001);
+    FlashCheck[2] = *(uint8_t*) (0x0003D002);
+    FlashCheck[3] = *(uint8_t*) (0x0003D003);
+
+    //Fill structure from flash if initialized
+    if (FlashCheck[0] != 255)
+    {
+        IridiumCount = *(uint8_t*) (0x0003D000);
+        ClearThemAll++;
+    }
+
+    if (FlashCheck[1] != 255)
+    {
+        GPSCount = *(uint8_t*) (0x0003D001);
+        ClearThemAll++;
+    }
+    if (FlashCheck[2] != 255)
+    {
+        VHFCount = *(uint8_t*) (0x0003D002);
+        ClearThemAll++;
+    }
+    if (FlashCheck[3] != 255)
+    {
+        BatteryLow = *(uint8_t*) (0x0003D003);
+        ClearThemAll++;
+    }
+
+    //Clear out the values if not initialized and store
+    if (ClearThemAll < 4)
+    {
+        IridiumCount = 0;
+        GPSCount = 0;
+        VHFCount = 0;
+        BatteryLow = 0;
+
+        store_battery_counters();
+    }
+
+}
+
 //Saves the current fix into memory and increments the location tracking
 void save_current_fix(void)
 {

@@ -47,14 +47,17 @@ extern volatile _Bool MagnetRemovedFlag; //Used for when the magnet has been rem
 
 //Power Calculation Globals
 //All of these uint8_t's are for power calc's. The second counts are incremented in the SysTick ISR, and corresponding minutes and seconds thereafter.
-volatile uint8_t XbeeSecCount;
-volatile uint8_t IridiumSecOnCount;
-extern volatile uint8_t GPSSecOnCount;
+extern volatile uint16_t VHFCount;
+extern volatile uint16_t IridiumCount;
+extern volatile uint16_t GPSCount;
+
 extern volatile _Bool LongevityMode; //When the battery is on the last legs this flag gets set and doesn't allow the GPS to get data points anymore
+
 extern volatile _Bool CurrentLocationRequestInitiated; //On the Xbee if the researcher requests for the current location of the collar, this is set
 //and allows the location to be determined.
 extern volatile _Bool NowGetFix; //Another bit for getting the current location of the collar
 volatile char BatteryString[4]; //The value of the calculated battery percentage is stored in here and sent over the PC and Xbee connection
+extern volatile _Bool updateConfig;
 
 extern volatile uint8_t VHFSecOnCount; //On startup, this gets incremented and is a "beacon" so they know the collar is on.
 
@@ -62,7 +65,7 @@ extern volatile uint8_t VHFSecOnCount; //On startup, this gets incremented and i
 volatile GPSDataStruct GPSData;
 volatile GPSDataStruct FinalGPSData;
 extern volatile Configparameters Config;
-extern volatile int BatteryLow;
+extern volatile _Bool BatteryLow;
 
 //GPS Globals
 volatile char dataString[300]; //Raw characters from the buffer are put in here
