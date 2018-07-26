@@ -70,4 +70,4 @@ volatile int SET_TIME_PRESSED = 0;
 volatile int SET_GPS_PRESSED = 0;
 volatile int SET_SAT_PRESSED = 0;
 volatile int SET_VHF_PRESSED = 0;
-
+volatile float READ_DATA_PROGRESS = 0;

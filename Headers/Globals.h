@@ -116,5 +116,5 @@ extern volatile int SET_TIME_PRESSED;
 extern volatile int SET_GPS_PRESSED;
 extern volatile int SET_SAT_PRESSED;
 extern volatile int SET_VHF_PRESSED;
-
+extern volatile float READ_DATA_PROGRESS;
 #endif /* HEADERS_GLOBALS_H_ */

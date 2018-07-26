@@ -54,8 +54,8 @@ int main(void)
 
 
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
-    //memory_test();
-    GPSEn = true;
+    memory_test();
+    //GPSEn = true;
 
     while(1)
     {

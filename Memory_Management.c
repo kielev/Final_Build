@@ -380,6 +380,7 @@ void readout_memory_all(void)
         PC_READY_DATA = 0;
         NEW_DATA_READY = 1;
         //PC_puts(FixRead);
+        READ_DATA_PROGRESS = ((float)i_1)/((float)max);
     }
     ALL_DATA_SENT = 1;
     NEW_DATA_READY = 0;
