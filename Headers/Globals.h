@@ -51,6 +51,8 @@ extern volatile uint16_t VHFCount;
 extern volatile uint16_t IridiumCount;
 extern volatile uint16_t GPSCount;
 
+extern volatile uint8_t GPSSecOnCount;
+
 extern volatile _Bool LongevityMode; //When the battery is on the last legs this flag gets set and doesn't allow the GPS to get data points anymore
 
 extern volatile _Bool CurrentLocationRequestInitiated; //On the Xbee if the researcher requests for the current location of the collar, this is set
@@ -78,7 +80,7 @@ extern volatile _Bool RMCSetTime;
 //volatile char CurrentFixSaveString[300];
 
 //Iridium Globals
-volatile char IridiumString[300];
+volatile char IridiumString[350];
 extern volatile int Iridiumindex;
 extern volatile int IridiumGo;
 extern volatile _Bool IridiumQuickRetry;

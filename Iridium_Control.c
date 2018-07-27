@@ -72,10 +72,11 @@ int sendIridiumString(char * String){
         return 0;
     }
 
+
     printf("\nCommand: message\n");
     Iridium_puts(String);
     while(IridiumGo == 0);
-    if(!strncmp("OK",IridiumString,2) || !strncmp("0",IridiumString,1)){
+    if(!strncmp("$",IridiumString,1)){
         IridiumGo = 0;
     } else {
         IridiumGo = 0;
@@ -83,12 +84,26 @@ int sendIridiumString(char * String){
         return 0;
     }
 
+
+    while(IridiumGo == 0);
+        if(!strncmp("0",IridiumString,1)){
+            IridiumGo = 0;
+        } else {
+            IridiumGo = 0;
+            printf("Error return %s\n", IridiumString);
+        }
+
     MAP_WDT_A_clearTimer();
     printf("\nCommand: AT+SBDIX\n");
     Iridium_puts("AT+SBDIX\r");
     while(IridiumGo == 0);
-    if(!strncmp("AT",IridiumString,2) || !strncmp("\rAT",IridiumString,3))
+    if(!strncmp("AT",IridiumString,2))
         IridiumGo = 0;
+    else if (IridiumString[0] == '\0'){
+        IridiumGo = 0;
+        while(IridiumGo == 0);
+        IridiumGo = 0;
+    }
     else{
         printf("AT+SBDIX echo error %s\n", IridiumString);
         IridiumGo = 0;
@@ -191,6 +206,7 @@ int sendIridiumString(char * String){
         return (ret+2);
 
     } else {
+        IridiumGo=0;
         printf("no message received - %d\n", atoi(tokString));
         return ret;
     }
@@ -206,7 +222,7 @@ void Iridium_puts(char *outString)
   for(i=0 ; i<len ; i++)
   {
       while((UCA1IFG & UCTXIFG) != UCTXIFG);  // wait until flag is set to indicate a new byte can be sent
-      UCA1TXBUF = (uint8_t) outString[i];;  // load register with byte to send
+      UCA1TXBUF = (uint8_t) outString[i];  // load register with byte to send
   }
 }
 

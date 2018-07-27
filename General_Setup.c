@@ -27,12 +27,14 @@ _Bool checkControlConditions(){
     } else if (IridiumEn == 1) {
         //Iridium On
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
+        Delay1ms(2000);
 
         do{
             MAP_WDT_A_clearTimer();
             pullOldFix(sendString, IRIDIUMFIXES);
 
             while(retry < Config.ICR && condition == 0){
+                printf("String: %s\n", sendString);
                 condition = sendIridiumString(sendString);
                 IridiumCount++;
                 retry++;
@@ -49,7 +51,7 @@ _Bool checkControlConditions(){
             } else if ((condition == 3)) {
                 moreUnsent = moveSentFix(IRIDIUMFIXES);
                 updateConfigString();
-                printf("GPS: %d\n", Config.GPS);
+                //printf("GPS: %d\n", Config.GPS);
             }
         } while(moreUnsent == IRIDIUMFIXES);
 
@@ -60,28 +62,33 @@ _Bool checkControlConditions(){
     } else if (GPSEn == 1) {
         //GPS On
         GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
+        printf("GTO: %d\n", Config.GTO);
+        EnableSysTick();
         FinalGPSData.HDOP = 10;
 
         while(GPSEn == 1){
             if(GPSGo){
+                GPSGo = 0;
                 MAP_WDT_A_clearTimer();
                 GPSParse();
-                printf("%.6d,%.6d,%09.4f,%c,%010.4f,%c,%03.2f\n"
+                /*printf("%.6d,%.6d,%09.4f,%c,%010.4f,%c,%03.2f\n"
                     , GPSData.FixDate, GPSData.FixTime, GPSData.Lat, GPSData.LatDir
-                    , GPSData.Lon, GPSData.LonDir, GPSData.HDOP);
-                if(GPSData.HDOP < FinalGPSData.HDOP)
+                    , GPSData.Lon, GPSData.LonDir, GPSData.HDOP); */
+                if(GPSData.HDOP < FinalGPSData.HDOP && GPSData.HDOP >= 0.0)
                     FinalGPSData = GPSData;
             }
         }
 
         if(FinalGPSData.HDOP < 10){
             /* write FinalGPSData to CurrentFixSaveString */
-            sprintf(CurrentFixSaveString, "%.6d,%.6d,%09.4f,%c,%010.4f,%c,%03.2f"
+            sprintf(CurrentFixSaveString, "%0.6d,%0.6d,%09.4f,%c,%010.4f,%c,%03.2f"
                     , FinalGPSData.FixDate, FinalGPSData.FixTime, FinalGPSData.Lat, FinalGPSData.LatDir
                     , FinalGPSData.Lon, FinalGPSData.LonDir, FinalGPSData.HDOP);
             save_current_fix();
         }
+        printf("%s\n",CurrentFixSaveString);
         GPSEn = 0;
+        DisableSysTick();
         GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
         return false;
 
@@ -111,8 +118,8 @@ void updateConfigString(){
 }
 
 _Bool batteryLowCalc(){
-    int calc = (VHFUAH * VHFCount) + (IRIDUMUAT * IridiumCount) + (GPSUAM * GPSCount);
-    return ((BATTERYVALUE-calc)/(BATTERYVALUE/100) < BATTERYPERCENT )
+    int calc = (VHFUAH * VHFCount) + (IRIDIUMUAT * IridiumCount) + (GPSUAM * GPSCount);
+    return ((BATTERYVALUE-calc)/(BATTERYVALUE/100) < BATTERYPERCENT );
 }
 
 void setDateTime()
@@ -319,7 +326,7 @@ void EnableSysTick(void)
 {
     //SysTick configuration - trigger at 1500000 ticks at 3MHz=0.5s
     MAP_SysTick_enableModule();
-    MAP_SysTick_setPeriod(2999000);
+    MAP_SysTick_setPeriod(2990000);
     MAP_SysTick_enableInterrupt();
 }
 

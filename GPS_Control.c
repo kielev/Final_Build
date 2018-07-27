@@ -15,7 +15,7 @@ void GPSParse(){
     SystemTime = MAP_RTC_C_getCalendarTime();
 
     if(!strncmp(&GPSString[3], "GGA", 3) && strlen(GPSString) > 55){
-        sprintf(dateString, "%.2d%.2d%.2d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
+        sprintf(dateString, "%0.2d%0.2d%0.2d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
         GPSData.FixDate = atoi(dateString);
         strtok(GPSString,",");
         GPSData.FixTime = atoi(strtok(NULL,","));

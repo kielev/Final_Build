@@ -57,9 +57,9 @@ void pullOldFix(char* String, int n){
        strcat(String, FixRead);
 
        if(i != n-1)
-           strcat(String, "\n");
+           strcat(String, ":");
    }
-   strcat(String, "\r\0");
+   strcat(String, "\r");
 }
 
 // TODO EK 7-18-2018 move transmission placeholder n gps location and update memory
@@ -335,16 +335,16 @@ void memory_test()
     char sendString[340] = {'\0'};
 
     int i;
-    for(i = 0; i < 2 * SECTOR_CAPACITY; ++i)
+    for(i = 0; i < 2*SECTOR_CAPACITY; ++i)
     {
-        sprintf(testStr, "$GPGGA,%.2d%.2d%.2d,%08.4f,N,%09.4f,W,1,%.2d,%.2f,%.1f,M,%.1f,M,,,*%.2d"
+        sprintf(testStr, "$GPGGA,%0.2d%0.2d%0.2d,%08.4f,N,%09.4f,W,1,%.2d,%.2f,%.1f,M,%.1f,M,,,*%3.2d"
                 , SystemTime.hours, SystemTime.minutes, SystemTime.seconds, rand()%9999 + (float)rand()/RAND_MAX
                 , rand()%9999 + (float)rand()/RAND_MAX, rand() % 31, rand()%9+ (float)rand()/RAND_MAX
                 , rand()%1000 + (float)rand()/RAND_MAX, rand()%1000 + (float)rand()/RAND_MAX, rand()%98 + 1);
         //printf("TestString: %s\n", testStr);
         strcpy(GPSString, testStr);
         GPSParse();
-        sprintf(CurrentFixSaveString, "%.6d,%.6d,%09.4f,%c,%010.4f,%c,%.2f"
+        sprintf(CurrentFixSaveString, "%0.6d,%0.6d,%09.4f,%c,%010.4f,%c,%3.2f"
                             , GPSData.FixDate, GPSData.FixTime, GPSData.Lat, GPSData.LatDir
                             , GPSData.Lon, GPSData.LonDir, GPSData.HDOP);
                     //printf("%s\n", CurrentFixSaveString);

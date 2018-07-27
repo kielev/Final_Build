@@ -22,7 +22,7 @@ int main(void)
     initClocks();
 
     initIridiumUART();
-    //initGPSUART();
+    initGPSUART();
 
     MAP_PSS_disableHighSide();
 
@@ -41,7 +41,7 @@ int main(void)
 
     /** set for time when nothing will run */
     SetTime.hours = 11;
-    SetTime.minutes = 59;
+    SetTime.minutes = 50;
     SetTime.seconds = 00;
     SetTime.dayOfmonth = 21;
     SetTime.month = 7;
@@ -56,12 +56,14 @@ int main(void)
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
     memory_test();
     //GPSEn = true;
+    IridiumEn = true;
 
     while(1)
     {
         if(updateConfig == true){
             readout_config_params();
             readout_battery_counters();
+            updateConfig = false;
         }
         if(checkControlConditions()){
             MAP_PCM_enableRudeMode();
@@ -95,7 +97,6 @@ void RTC_C_IRQHandler(void)
             GPSCount += Config.GTO;
             RMCSetTime = 0;
             GPSEn = 1;
-            EnableSysTick();
         }
 
         if(((!(SystemTime.hours % Config.ICT)
@@ -127,10 +128,9 @@ void SysTick_IRQHandler(void)
     if (GPSEn == 1)
     {
         GPSSecOnCount++;
-        if(GPSSecOnCount / 60 > Config.GTO){
+        if(GPSSecOnCount / 60 > (Config.GTO-1)){
             GPSEn = 0;
             GPSSecOnCount = 0;
-            DisableSysTick();
 
             //For Full System Test Remove For Operation
             IridiumEn = 1;
