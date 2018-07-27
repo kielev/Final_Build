@@ -9,7 +9,7 @@
 
 
 void GPSParse(){
-    char dateString[6];
+    char dateString[7];
     char *tokString;
 
     SystemTime = MAP_RTC_C_getCalendarTime();
@@ -34,7 +34,7 @@ void GPSParse(){
         tokString = strtok(NULL,",");
         strcpy(dateString, tokString);
 
-        if (strlen(dateString) == 10) {
+        if (strlen(dateString) == 6) {
             SetTime.hours   = (dateString[0]-'0') * 10 + (dateString[1]-'0');
             SetTime.minutes = (dateString[2]-'0') * 10 + (dateString[3]-'0');
             SetTime.seconds = (dateString[4]-'0') * 10 + (dateString[5]-'0');

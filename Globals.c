@@ -46,7 +46,7 @@ volatile _Bool updateConfig = false;
 volatile uint8_t VHFSecOnCount = 0; //On startup, this gets incremented and is a "beacon" so they know the collar is on.
 
 
-volatile Configparameters Config = {4,1,1,0,0,1,9,12};
+volatile Configparameters Config = {4,2,1,0,0,1,9,12};
 volatile _Bool BatteryLow = 0;
 
 //GPS Globals

@@ -74,8 +74,14 @@ _Bool checkControlConditions(){
                 /*printf("%.6d,%.6d,%09.4f,%c,%010.4f,%c,%03.2f\n"
                     , GPSData.FixDate, GPSData.FixTime, GPSData.Lat, GPSData.LatDir
                     , GPSData.Lon, GPSData.LonDir, GPSData.HDOP); */
-                if(GPSData.HDOP < FinalGPSData.HDOP && GPSData.HDOP >= 0.0)
+                if(GPSData.HDOP < FinalGPSData.HDOP && GPSData.HDOP > 0.0){
                     FinalGPSData = GPSData;
+                    sprintf(CurrentFixSaveString, "%0.6d,%0.6d,%09.4f,%c,%010.4f,%c,%03.2f"
+                            , FinalGPSData.FixDate, FinalGPSData.FixTime, FinalGPSData.Lat, FinalGPSData.LatDir
+                            , FinalGPSData.Lon, FinalGPSData.LonDir, FinalGPSData.HDOP);
+                    printf("GPS: %s\n", CurrentFixSaveString);
+                    save_current_fix();
+                }
             }
         }
 
@@ -103,7 +109,7 @@ _Bool checkControlConditions(){
 
 //update the overall set of configs from ParameterString
 void updateConfigString(){
-    if(strlen(ParameterString) == 14){
+    if(strlen(ParameterString) == 15){
         //BatteryLow = ParameterString[1] - '0';
         Config.GPS = (ParameterString[2]-'0') * 10 + (ParameterString[3]-'0');
         Config.GTO = (ParameterString[4]-'0');

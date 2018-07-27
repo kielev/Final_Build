@@ -202,6 +202,7 @@ int sendIridiumString(char * String){
             printf("End Message Error %s\n", IridiumString);
         }
 
+        strcat(ParameterString,"\0");
         printf("Received Message - %s\n", ParameterString);
         return (ret+2);
 
