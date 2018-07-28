@@ -17,14 +17,14 @@ _Bool checkControlConditions(){
 
     BatteryLow = batteryLowCalc();
 
-    if (GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN3) == GPIO_INPUT_PIN_HIGH) {
+    //if (GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN3) == GPIO_INPUT_PIN_HIGH) {
 
         //IOSetup(); //Initializes all of the pins in the most efficient way possible to keep battery life okay.
         //MAP_PCM_enableRudeMode();
         //MAP_PCM_gotoLPM4(); //this is for storing it on a shelf for an extended period of time. Uses the least power
         //for modes besides 4.5.
 
-    } else if (IridiumEn == 1) {
+    if (IridiumEn == 1) {
         //Iridium On
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
         Delay1ms(2000);
@@ -102,8 +102,9 @@ _Bool checkControlConditions(){
         GPIO_toggleOutputOnPin(GPIO_PORT_P4, GPIO_PIN7);
         VHFToggle = 0;
     }
-    if(GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN2) == GPIO_INPUT_PIN_HIGH)
-        return false;
+
+   // if(GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN2) == GPIO_INPUT_PIN_HIGH)
+   //     return false;
     return true;
 }
 
@@ -204,7 +205,7 @@ void updateConfigGlobal(void){
 
 _Bool newConfigReceivedPC()
 {
-    return (SET_GPS_PRESSED | SET_VHF_PRESSED | SET_TIME_PRESSED | SET_SAT_PRESSED);
+    return (SET_GPS_PRESSED || SET_VHF_PRESSED || SET_TIME_PRESSED || SET_SAT_PRESSED);
 }
 
 int convert12to24(int hour, _Bool pm)

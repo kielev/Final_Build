@@ -43,7 +43,6 @@ void pullOldFix(char* String, int n){
    }
 
    int i;
-   // IT WILL ALWAYS BE 7
    for(i = 0; i < n; ++i)
    {
        int nextTransmit = i * FIX_SIZE + TransmitFixCount[0];
@@ -83,8 +82,9 @@ int moveSentFix(int n){
    if(n > maxFixesTransmittable)
    {
        // don't try to read more than we have stored
-   }
        n = maxFixesTransmittable;
+   }
+
 
    int sectorRemain = SECTOR_CAPACITY - TransmitFixCount[0];
    // This assumes n won't be larger than SECTOR_SIZE
@@ -330,6 +330,7 @@ void readout_sector(unsigned startposition)
 
 void memory_test()
 {
+    int end = 5;
     srand(time(0));
     char testStr[100] = {'\0'};
     char sendString[340] = {'\0'};
@@ -353,10 +354,14 @@ void memory_test()
     }
 
 
+    while(end == 5){
+        pullOldFix(sendString, 5);
+        printf("Iridium String: %s\n", sendString);
+        moveSentFix(5);
+    }
 
-    /*pullOldFix(sendString, 7);
 
-    printf("String: %s\n", sendString);*/
+    //printf("String: %s\n", sendString);
     printf("end of memory test\n");
 }
 
