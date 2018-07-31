@@ -14,9 +14,6 @@
 int main(void)
 {
 
-    /* Stop Watchdog  */
-    MAP_WDT_A_holdTimer();
-
     IOSetup();
 
     initClocks();
@@ -57,7 +54,6 @@ int main(void)
     memory_test();
     //GPSEn = true;
     //IridiumEn = true;
-    return 1;
 
     while(1)
     {
@@ -66,10 +62,20 @@ int main(void)
             readout_battery_counters();
             updateConfig = false;
         }
+
+        if(VHFStartCount >= 60){
+            GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN7);
+            DisableSysTick();
+        }
+
         if(checkControlConditions()){
+            if(isMemoryFull()){
+                clearMemory();
+            }
             MAP_PCM_enableRudeMode();
             MAP_PCM_gotoLPM3();
         }
+
         if(newConfigReceivedPC())
         {
             updateConfigGlobal();
@@ -137,6 +143,10 @@ void SysTick_IRQHandler(void)
             IridiumEn = 1;
         }
     }
+
+    if (VHFStartCount < 60){
+        VHFStartCount++;
+    }
 }
 
 //PORT 4 ISR, this is for determining if the magnet is present or not on pin 3
@@ -155,6 +165,9 @@ void PORT4_IRQHandler(void)
     if (status & GPIO_PIN3)
     {
         MAP_RTC_C_startClock(); //Start the RTC
+        EnableSysTick();
+        GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN7);
+        VHFStartCount = 0;
         updateConfig = true;
     }
 }
