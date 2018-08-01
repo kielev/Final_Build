@@ -32,25 +32,30 @@ void pullOldFix(char* String, int n){
     ReadFixCount[1] = *(uint8_t*) (0x0003F001);
 
    //Compute the offset for the save address
-   unsigned offsetTransmit = (FIX_SIZE * TransmitFixCount[0]) + (4096 * TransmitFixCount[1]);
-   unsigned offsetRead = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
+   unsigned offsetTransmit = (FIX_SIZE * TransmitFixCount[0]) + (4085 * TransmitFixCount[1]);
+   unsigned offsetRead = (FIX_SIZE * ReadFixCount[0]) + (4085 * ReadFixCount[1]);
 
-   int maxFixesTransmittable = (offsetRead - offsetTransmit)/FIX_SIZE;
+   int maxFixesTransmittable = ((offsetRead - offsetTransmit) / FIX_SIZE);
+   //printf("Max: %d\n", maxFixesTransmittable);
+   offsetTransmit += (11 * TransmitFixCount[1]);
+
    if(n > maxFixesTransmittable)
    {
        // don't try to read more than we have stored
        n = maxFixesTransmittable;
    }
 
+
    int i;
    for(i = 0; i < n; ++i)
    {
-       int nextTransmit = i * FIX_SIZE + TransmitFixCount[0];
-       if(nextTransmit + FIX_SIZE > 4096)
+       int nextTransmit = (i + TransmitFixCount[0]) * FIX_SIZE;
+
+       if((nextTransmit + FIX_SIZE) > 4096)
        {
            TransmitFixCount[0] = 0;
            TransmitFixCount[1] += 1;
-           offsetTransmit = 4096 * (TransmitFixCount[1]);
+           offsetTransmit = (4096 * (TransmitFixCount[1])) - (i * FIX_SIZE);
        }
        readout_fix(0x00020000 + (i * FIX_SIZE) + offsetTransmit);
        strcat(String, FixRead);
@@ -69,15 +74,15 @@ int moveSentFix(int n){
    //Get current memory location
     TransmitFixCount[0] = *(uint8_t*) (0x0003E000);
     TransmitFixCount[1] = *(uint8_t*) (0x0003E001);
+
    // Last place we stored a fix (TODO Check if this is right or if it's this + 1 more fix)
     ReadFixCount[0] = *(uint8_t*) (0x0003F000); // should this 3E for transmission placeholder?
     ReadFixCount[1] = *(uint8_t*) (0x0003F001);
+
    //Compute the offset for the save address
-   unsigned offsetTransmit = (FIX_SIZE * TransmitFixCount[0]) + (4096 * TransmitFixCount[1]);
-   unsigned offsetRead = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
-   int maxFixesTransmittable = (offsetRead - offsetTransmit)/FIX_SIZE;
-
-
+   unsigned offsetTransmit = (FIX_SIZE * TransmitFixCount[0]) + (4085 * TransmitFixCount[1]);
+   unsigned offsetRead = (FIX_SIZE * ReadFixCount[0]) + (4085 * ReadFixCount[1]);
+   int maxFixesTransmittable = ((offsetRead - offsetTransmit)/FIX_SIZE);
 
    if(n > maxFixesTransmittable)
    {
@@ -85,17 +90,12 @@ int moveSentFix(int n){
        n = maxFixesTransmittable;
    }
 
-
    int sectorRemain = SECTOR_CAPACITY - TransmitFixCount[0];
    // This assumes n won't be larger than SECTOR_SIZE
-   if(n > sectorRemain)
+   if(n >= sectorRemain)
    {
        MemPlaceholder[0] = n - sectorRemain;
-       do
-       {
-           MemPlaceholder[1] = TransmitFixCount[1]++;
-           MemPlaceholder[0] -= MemPlaceholder[0] > SECTOR_CAPACITY ? SECTOR_CAPACITY : 0;
-       } while(MemPlaceholder[0] > SECTOR_CAPACITY);
+       MemPlaceholder[1] = TransmitFixCount[1] + 1;
    }
    else
    {
@@ -104,7 +104,89 @@ int moveSentFix(int n){
    }
 
    transmission_placeholder_store();
-   return n;
+   return (maxFixesTransmittable-n);
+}
+
+void clearMemory(void){
+    int i = 0, loc=0;
+    uint8_t Save[4096];
+
+    int sector_array[32] = { FLASH_SECTOR0, FLASH_SECTOR1, FLASH_SECTOR2,
+                             FLASH_SECTOR3, FLASH_SECTOR4, FLASH_SECTOR5,
+                             FLASH_SECTOR6, FLASH_SECTOR7, FLASH_SECTOR8,
+                             FLASH_SECTOR9, FLASH_SECTOR10,FLASH_SECTOR11,
+                             FLASH_SECTOR12,FLASH_SECTOR13,FLASH_SECTOR14,
+                             FLASH_SECTOR15,FLASH_SECTOR16,FLASH_SECTOR17,
+                             FLASH_SECTOR18,FLASH_SECTOR19,FLASH_SECTOR20,
+                             FLASH_SECTOR21,FLASH_SECTOR22,FLASH_SECTOR23,
+                             FLASH_SECTOR24,FLASH_SECTOR25,FLASH_SECTOR26,
+                             FLASH_SECTOR27};
+
+    uint8_t ReadFixCount[2]; //This stores the current sector position and current sector read out from flash
+    uint8_t TransmitFixCount[2]; // Last transmission sector position and sector
+
+    //Get current memory location
+    TransmitFixCount[0] = *(uint8_t*) (0x0003E000);
+    TransmitFixCount[1] = *(uint8_t*) (0x0003E001);
+
+    // Last place we stored a fix (TODO Check if this is right or if it's this + 1 more fix)
+    ReadFixCount[0] = *(uint8_t*) (0x0003F000); // should this 3E for transmission placeholder?
+    ReadFixCount[1] = *(uint8_t*) (0x0003F001);
+
+
+    if(TransmitFixCount[1] == 0){
+        TransmitFixCount[1] = 2;
+        TransmitFixCount[0] = 0;
+    }
+
+    for(i = 0;i < TransmitFixCount[1];i++){
+        FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, sector_array[i]);
+    }
+
+    FlashCtl_initiateMassErase();
+
+    for(i = TransmitFixCount[1];i < 28;i++){
+        FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, sector_array[i]);
+    }
+
+    MAP_WDT_A_clearTimer();
+    for(i=TransmitFixCount[1];i <= ReadFixCount[1]; i++){
+
+        for(loc = 0;loc < 4096;loc++){
+            Save[loc] = *(uint8_t*)(0x00020000 + loc + (i * 4096));
+        }
+        //printf("Moving sector %d to %d\n", i, i-TransmitFixCount[1]);
+        FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE);
+        FlashCtl_programMemory(Save, (void*)(0x00020000 + ((i-TransmitFixCount[1])*4096)), 4096);
+        FlashCtl_eraseSector((void*)(0x00020000 + (i*4096)));
+        //printf("Moved sector %d to %d\n", i, i-TransmitFixCount[1]);
+    }
+
+    for(i = TransmitFixCount[1];i < 28;i++){
+        FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, sector_array[i]);
+    }
+    MAP_WDT_A_clearTimer();
+
+    FixMemoryLocator[1] = ReadFixCount[1] - (TransmitFixCount[1]-1);
+    FixMemoryLocator[0] = 0;
+    if(TransmitFixCount[0] == 95){
+        MemPlaceholder[0] = 0;
+    } else
+        MemPlaceholder[0] = TransmitFixCount[0];
+    MemPlaceholder[1] = 0;
+
+    FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR30); //unprotect sector
+    FlashCtl_eraseSector(0x0003E000); //erase the sector
+    FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
+    FlashCtl_programMemory(MemPlaceholder, (void*) 0x0003E000, 2); //write the data
+    FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR30); //protect sector
+
+    FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR31); //unprotect sector
+    FlashCtl_eraseSector(0x0003F000); //erase the sector
+    FlashCtl_enableWordProgramming(FLASH_IMMEDIATE_WRITE_MODE); // Allow for immediate writing
+    FlashCtl_programMemory(FixMemoryLocator, (void*) 0x0003F000, 2); //write the data
+    FlashCtl_protectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, FLASH_SECTOR31); //protect sector
+    MemoryFull = 0;
 }
 
 //Store the configuration parameters to flash
@@ -249,20 +331,25 @@ void readout_battery_counters(void)
 
         store_battery_counters();
     }
-
 }
 
 //Saves the current fix into memory and increments the location tracking
 void save_current_fix(void)
 {
     uint8_t ReadFixCount[2]; //This stores the current sector position and current sector read out from flash
+    unsigned offset;
 
     //Get current memory location
     ReadFixCount[0] = *(uint8_t*) (0x0003F000);
     ReadFixCount[1] = *(uint8_t*) (0x0003F001);
 
+
     //Compute the offset for the save address
-    unsigned offset = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
+    if(FIX_SIZE * (ReadFixCount[0] + 1) < 4096)
+        offset = (FIX_SIZE * ReadFixCount[0]) + (4096 * ReadFixCount[1]);
+    else
+        offset = (4096 * (ReadFixCount[1]+1)); //should never run
+
 
     //Compute the sector address
     unsigned CurSector = pow(2, ReadFixCount[1]);
@@ -279,7 +366,7 @@ void save_current_fix(void)
 
     //Update the memory location tracking
     //@NOTE 5-7-2018 128 = num of fixes that can be stored in sector
-    if (ReadFixCount[0] < SECTOR_CAPACITY)
+    if ((ReadFixCount[0] + 1) < SECTOR_CAPACITY)
     {
         ReadFixCount[0]++;
     }
@@ -335,9 +422,30 @@ void memory_test()
     char testStr[100] = {'\0'};
     char sendString[340] = {'\0'};
 
-    int i;
-    for(i = 0; i < 2*SECTOR_CAPACITY; ++i)
+    int i,x;
+    for(i = 0; i < 5*SECTOR_CAPACITY; ++i)
     {
+        if(i / 95 == 20 && i % 95 == 23){
+            while((end > 0)){
+                pullOldFix(sendString, 5);
+                printf("Iridium String: %s\n", sendString);
+                end = moveSentFix(5);
+            }
+            /*for(x = 0; x < 95; x += 5) {
+                pullOldFix(sendString, 5);
+                printf("Iridium String: %s\n", sendString);
+                end = moveSentFix(5);
+            }*/
+        }
+
+        /*if(i % 95 == 0)
+            printf("starting sector %d\n", i/95);*/
+
+        if(isMemoryFull()){
+            printf("memory clearing");
+            clearMemory();
+        }
+
         sprintf(testStr, "$GPGGA,%0.2d%0.2d%0.2d,%08.4f,N,%09.4f,W,1,%.2d,%.2f,%.1f,M,%.1f,M,,,*%3.2d"
                 , SystemTime.hours, SystemTime.minutes, SystemTime.seconds, rand()%9999 + (float)rand()/RAND_MAX
                 , rand()%9999 + (float)rand()/RAND_MAX, rand() % 31, rand()%9+ (float)rand()/RAND_MAX
@@ -350,18 +458,17 @@ void memory_test()
                             , GPSData.Lon, GPSData.LonDir, GPSData.HDOP);
                     //printf("%s\n", CurrentFixSaveString);
         save_current_fix();
+
         MAP_WDT_A_clearTimer();
+
     }
-
-
-    while(end == 5){
+    end = 5;
+    /*while((end > 0)){
         pullOldFix(sendString, 5);
         printf("Iridium String: %s\n", sendString);
-        moveSentFix(5);
-    }
+        end = moveSentFix(5);
+    }*/
 
-
-    //printf("String: %s\n", sendString);
     printf("end of memory test\n");
 }
 

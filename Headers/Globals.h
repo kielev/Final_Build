@@ -51,6 +51,7 @@ extern volatile uint16_t VHFCount;
 extern volatile uint16_t IridiumCount;
 extern volatile uint16_t GPSCount;
 
+extern volatile uint16_t VHFStartCount;
 extern volatile uint8_t GPSSecOnCount;
 
 extern volatile _Bool LongevityMode; //When the battery is on the last legs this flag gets set and doesn't allow the GPS to get data points anymore

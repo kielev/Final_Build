@@ -30,14 +30,22 @@ int main(void)
 
     while(1)
     {
-        puts("looping\n");
         if(updateConfig == true){
             readout_config_params();
             readout_battery_counters();
             updateConfig = false;
         }
+
+        if(VHFStartCount >= 60){
+            GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN7);
+            DisableSysTick();
+        }
+
         if(checkControlConditions()){
-            puts("Sleeping\n");
+            MAP_WDT_A_holdTimer();
+            if(isMemoryFull()){
+                clearMemory();
+            }
             MAP_WDT_A_holdTimer();
             MAP_PCM_enableRudeMode();
             MAP_PCM_gotoLPM3();
@@ -54,8 +62,6 @@ int main(void)
         MAP_WDT_A_clearTimer();
     }
 }
-
-
 
 
 // RTC ISR
@@ -93,7 +99,6 @@ void RTC_C_IRQHandler(void)
             VHFToggle = 1;
         }
     }
-    //puts("RTC\n");
 }
 
 //This is used for a second interrupt to count how long the Iridium/GPS has been on.
@@ -114,10 +119,9 @@ void SysTick_IRQHandler(void)
         }
     }
 
-    if (VHFStartUp){
-
+    if (VHFStartCount < 60){
+        VHFStartCount++;
     }
-    //puts("SysTick\n");
 }
 
 //PORT 4 ISR, this is for determining if the magnet is present or not on pin 3
@@ -136,9 +140,11 @@ void PORT4_IRQHandler(void)
     if (status & GPIO_PIN3)
     {
         MAP_RTC_C_startClock(); //Start the RTC
+        EnableSysTick();
+        GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN7);
+        VHFStartCount = 0;
         updateConfig = true;
     }
-    //puts("Port4\n");
 }
 
 
@@ -168,7 +174,6 @@ void EUSCIA1_IRQHandler(void)
             break;
         }
     }
-    //puts("A1\n");
 }
 
 
@@ -198,5 +203,4 @@ void EUSCIA2_IRQHandler(void)
             break;
         }
     }
-    ///puts("A2\n");
 }

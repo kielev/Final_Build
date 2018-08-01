@@ -24,39 +24,37 @@ _Bool checkControlConditions(){
         MAP_PCM_gotoLPM4(); //this is for storing it on a shelf for an extended period of time. Uses the least power
         //for modes besides 4.5.
         systemStart();
-    }
-
-    if (IridiumEn == 1) {
+    } else if (IridiumEn == 1) {
         //Iridium On
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
-        Delay1ms(2000);
-
+        Delay1ms(4000);
         do{
             MAP_WDT_A_clearTimer();
             pullOldFix(sendString, IRIDIUMFIXES);
 
-            if
-            while(retry < Config.ICR && condition == 0){
-                printf("String: %s\n", sendString);
-                condition = sendIridiumString(sendString);
-                IridiumCount++;
-                retry++;
-            }
+            if(strlen(sendString > 20)){
+                while(retry < Config.ICR && condition == 0){
+                    printf("String: %s\n", sendString);
+                    condition = sendIridiumString(sendString);
+                    IridiumCount++;
+                    retry++;
+                }
 
-            if(condition == 0){
+                if(condition == 0){
+                    moreUnsent = 0;
+                    IridiumQuickRetry = true;
+                } else if (condition == 1) {
+                    moreUnsent = moveSentFix(IRIDIUMFIXES);
+                } else if (condition == 2) {
+                    moreUnsent = 0;
+                    updateConfigString();
+                } else if ((condition == 3)) {
+                    moreUnsent = moveSentFix(IRIDIUMFIXES);
+                    updateConfigString();
+                }
+            } else
                 moreUnsent = 0;
-                IridiumQuickRetry = true;
-            } else if (condition == 1) {
-                moreUnsent = moveSentFix(IRIDIUMFIXES);
-            } else if (condition == 2) {
-                moreUnsent = 0;
-                updateConfigString();
-            } else if ((condition == 3)) {
-                moreUnsent = moveSentFix(IRIDIUMFIXES);
-                updateConfigString();
-                //printf("GPS: %d\n", Config.GPS);
-            }
-        } while(moreUnsent == IRIDIUMFIXES);
+        } while(moreUnsent > 0);
 
         IridiumEn = 0;
         GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
@@ -74,10 +72,8 @@ _Bool checkControlConditions(){
                 GPSGo = 0;
                 MAP_WDT_A_clearTimer();
                 GPSParse();
-                /*printf("%.6d,%.6d,%09.4f,%c,%010.4f,%c,%03.2f\n"
-                    , GPSData.FixDate, GPSData.FixTime, GPSData.Lat, GPSData.LatDir
-                    , GPSData.Lon, GPSData.LonDir, GPSData.HDOP); */
-                if(GPSData.HDOP < FinalGPSData.HDOP && GPSData.HDOP > 0.0){
+
+                if(GPSData.HDOP < FinalGPSData.HDOP && GPSData.HDOP > 0.0) {
                     FinalGPSData = GPSData;
                     sprintf(CurrentFixSaveString, "%0.6d,%0.6d,%09.4f,%c,%010.4f,%c,%03.2f"
                             , FinalGPSData.FixDate, FinalGPSData.FixTime, FinalGPSData.Lat, FinalGPSData.LatDir
@@ -95,20 +91,15 @@ _Bool checkControlConditions(){
                     , FinalGPSData.Lon, FinalGPSData.LonDir, FinalGPSData.HDOP);
             save_current_fix();
         }
-        printf("%s\n",CurrentFixSaveString);
         GPSEn = 0;
         DisableSysTick();
         GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
         return false;
 
     } else if (VHFToggle == 1) {
-        printf("VHF Toggle\n");
         GPIO_toggleOutputOnPin(GPIO_PORT_P4, GPIO_PIN7);
         VHFToggle = 0;
     }
-
-   // if(GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN2) == GPIO_INPUT_PIN_HIGH)
-   //     return false;
     return true;
 }
 
@@ -171,7 +162,7 @@ void updateConfigString(){
     }
 }
 
-_Bool batteryLowCalc(){
+_Bool batteryLowCalc(){ //need to update values
     int calc = (VHFUAH * VHFCount) + (IRIDIUMUAT * IridiumCount) + (GPSUAM * GPSCount);
     return ((BATTERYVALUE-calc)/(BATTERYVALUE/100) < BATTERYPERCENT );
 }

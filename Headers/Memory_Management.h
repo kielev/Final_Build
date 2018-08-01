@@ -35,6 +35,8 @@ extern volatile _Bool MemoryFull;
 //TODO EK 7-14-2018 Function to pull oldest unsent fixes and assemble a string
 void pullOldFix(char* String, int n);
 
+void clearMemory(void);
+
 int store_config_params(void);
 
 void readout_config_params(void);

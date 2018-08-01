@@ -36,6 +36,7 @@ volatile uint16_t VHFCount = 0;
 volatile uint16_t IridiumCount = 0;
 volatile uint16_t GPSCount = 0;
 
+volatile uint16_t VHFStartCount = 0;
 volatile uint8_t GPSSecOnCount = 0;
 volatile _Bool LongevityMode = 0; //When the battery is on the last legs this flag gets set and doesn't allow the GPS to get data points anymore
 volatile _Bool CurrentLocationRequestInitiated = 0; //On the Xbee if the researcher requests for the current location of the collar, this is set
