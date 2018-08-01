@@ -17,12 +17,14 @@ _Bool checkControlConditions(){
 
     BatteryLow = batteryLowCalc();
 
-    //if (GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN3) == GPIO_INPUT_PIN_HIGH) {
-
+    if (GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN3) == GPIO_INPUT_PIN_HIGH) {
+        puts("sleep 4\n");
         //IOSetup(); //Initializes all of the pins in the most efficient way possible to keep battery life okay.
-        //MAP_PCM_enableRudeMode();
-        //MAP_PCM_gotoLPM4(); //this is for storing it on a shelf for an extended period of time. Uses the least power
+        MAP_PCM_enableRudeMode();
+        MAP_PCM_gotoLPM4(); //this is for storing it on a shelf for an extended period of time. Uses the least power
         //for modes besides 4.5.
+        systemStart();
+    }
 
     if (IridiumEn == 1) {
         //Iridium On
@@ -33,6 +35,7 @@ _Bool checkControlConditions(){
             MAP_WDT_A_clearTimer();
             pullOldFix(sendString, IRIDIUMFIXES);
 
+            if
             while(retry < Config.ICR && condition == 0){
                 printf("String: %s\n", sendString);
                 condition = sendIridiumString(sendString);
@@ -99,6 +102,7 @@ _Bool checkControlConditions(){
         return false;
 
     } else if (VHFToggle == 1) {
+        printf("VHF Toggle\n");
         GPIO_toggleOutputOnPin(GPIO_PORT_P4, GPIO_PIN7);
         VHFToggle = 0;
     }
@@ -106,6 +110,49 @@ _Bool checkControlConditions(){
    // if(GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN2) == GPIO_INPUT_PIN_HIGH)
    //     return false;
     return true;
+}
+
+void systemStart(){
+    MAP_WDT_A_holdTimer();
+
+    IOSetup();
+
+    initClocks();
+
+    initIridiumUART();
+    initGPSUART();
+
+    MAP_PSS_disableHighSide();
+
+    // Enable all SRAM bank retentions prior to going to LPM3
+    SYSCTL->SRAM_BANKRET |= SYSCTL_SRAM_BANKRET_BNK7_RET;
+
+    RTC_setup();
+
+    memory_locator_init();
+
+    transmission_placeholder_init();
+
+    readout_config_params();
+
+    store_config_params();
+
+    /** set for time when nothing will run */
+    SetTime.hours = 11;
+    SetTime.minutes = 59;
+    SetTime.seconds = 00;
+    SetTime.dayOfmonth = 21;
+    SetTime.month = 7;
+    SetTime.year = 2018;
+
+
+
+    setDateTime();
+    MAP_Interrupt_disableSleepOnIsrExit();
+
+    MAP_Interrupt_enableMaster();
+    MAP_WDT_A_startTimer();
+
 }
 
 //update the overall set of configs from ParameterString
@@ -270,15 +317,15 @@ void IOSetup(void)
     MAP_GPIO_setAsInputPin(GPIO_PORT_P4, GPIO_PIN2);
     MAP_GPIO_setAsInputPin(GPIO_PORT_P4, GPIO_PIN3);
     // Enable P4.2 & P4.3 interrupts - falling edge for 4.2, rising edge for 4.3
-    MAP_GPIO_interruptEdgeSelect(GPIO_PORT_P4, GPIO_PIN2, GPIO_LOW_TO_HIGH_TRANSITION);
+    //MAP_GPIO_interruptEdgeSelect(GPIO_PORT_P4, GPIO_PIN2, GPIO_LOW_TO_HIGH_TRANSITION);
     MAP_GPIO_interruptEdgeSelect(GPIO_PORT_P4, GPIO_PIN3, GPIO_HIGH_TO_LOW_TRANSITION);
-    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P4, GPIO_PIN2|GPIO_PIN3);
-    MAP_GPIO_enableInterrupt(GPIO_PORT_P4, GPIO_PIN2|GPIO_PIN3);
+    MAP_GPIO_clearInterruptFlag(GPIO_PORT_P4, GPIO_PIN3);
+    MAP_GPIO_enableInterrupt(GPIO_PORT_P4, GPIO_PIN3);
     MAP_Interrupt_enableInterrupt(INT_PORT4);
 
-    //Setting up the enable pins for the GPS, VHF, and Xbee modules
+    //Setting up the enable pins for the GPS, VHF, and Iridium modules
     MAP_GPIO_setAsOutputPin(GPIO_PORT_P2, GPIO_PIN0);
-    MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
+    MAP_GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
     MAP_GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN0);
     MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
     MAP_GPIO_setAsOutputPin(GPIO_PORT_P4, GPIO_PIN7);
@@ -320,9 +367,9 @@ void RTC_setup(void)
 
     //delete the read_ready_interrupt once this is ready to be buttoned up more
     MAP_RTC_C_clearInterruptFlag(
-    RTC_C_TIME_EVENT_INTERRUPT | RTC_C_CLOCK_READ_READY_INTERRUPT);
+    RTC_C_TIME_EVENT_INTERRUPT );
     MAP_RTC_C_enableInterrupt(
-    RTC_C_TIME_EVENT_INTERRUPT | RTC_C_CLOCK_READ_READY_INTERRUPT);
+    RTC_C_TIME_EVENT_INTERRUPT);
 
     /* Enable interrupts and go to sleep. */
     MAP_Interrupt_enableInterrupt(INT_RTC_C);

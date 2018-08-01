@@ -14,61 +14,34 @@
 int main(void)
 {
 
+
     /* Stop Watchdog  */
-    MAP_WDT_A_holdTimer();
+    systemStart();
 
-    IOSetup();
+    SystemTime = MAP_RTC_C_getCalendarTime();
 
-    initClocks();
-
-    initIridiumUART();
-    initGPSUART();
-
-    MAP_PSS_disableHighSide();
-
-    // Enable all SRAM bank retentions prior to going to LPM3
-    SYSCTL->SRAM_BANKRET |= SYSCTL_SRAM_BANKRET_BNK7_RET;
-
-    RTC_setup();
-
-    memory_locator_init();
-
-    transmission_placeholder_init();
-
-    readout_config_params();
-
-    store_config_params();
-
-    /** set for time when nothing will run */
-    SetTime.hours = 11;
-    SetTime.minutes = 50;
-    SetTime.seconds = 00;
-    SetTime.dayOfmonth = 21;
-    SetTime.month = 7;
-    SetTime.year = 2018;
-
-    setDateTime();
-
-    MAP_Interrupt_enableMaster();
-    MAP_WDT_A_startTimer();
-
+    printf("%0.2d:%0.2d:%0.2d\n", SystemTime.hours, SystemTime.minutes, SystemTime.seconds);
 
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
-    memory_test();
+    //memory_test();
     //GPSEn = true;
     //IridiumEn = true;
-    return 1;
+    //return 1;
 
     while(1)
     {
+        puts("looping\n");
         if(updateConfig == true){
             readout_config_params();
             readout_battery_counters();
             updateConfig = false;
         }
         if(checkControlConditions()){
+            puts("Sleeping\n");
+            MAP_WDT_A_holdTimer();
             MAP_PCM_enableRudeMode();
             MAP_PCM_gotoLPM3();
+            MAP_WDT_A_startTimer();
         }
         if(newConfigReceivedPC())
         {
@@ -81,6 +54,8 @@ int main(void)
         MAP_WDT_A_clearTimer();
     }
 }
+
+
 
 
 // RTC ISR
@@ -118,6 +93,7 @@ void RTC_C_IRQHandler(void)
             VHFToggle = 1;
         }
     }
+    //puts("RTC\n");
 }
 
 //This is used for a second interrupt to count how long the Iridium/GPS has been on.
@@ -134,9 +110,14 @@ void SysTick_IRQHandler(void)
             GPSSecOnCount = 0;
 
             //For Full System Test Remove For Operation
-            IridiumEn = 1;
+            //IridiumEn = 1;
         }
     }
+
+    if (VHFStartUp){
+
+    }
+    //puts("SysTick\n");
 }
 
 //PORT 4 ISR, this is for determining if the magnet is present or not on pin 3
@@ -157,15 +138,7 @@ void PORT4_IRQHandler(void)
         MAP_RTC_C_startClock(); //Start the RTC
         updateConfig = true;
     }
-}
-
-// EUSCI A0 UART ISR - Captures what's input from the serial emulator and puts it in a buffer for the MCU to deal with.
-
-void EUSCIA0_IRQHandler(void)
-{
-    uint32_t status = MAP_UART_getEnabledInterruptStatus(EUSCI_A0_BASE);
-
-    MAP_UART_clearInterruptFlag(EUSCI_A0_BASE, status);
+    //puts("Port4\n");
 }
 
 
@@ -195,6 +168,7 @@ void EUSCIA1_IRQHandler(void)
             break;
         }
     }
+    //puts("A1\n");
 }
 
 
@@ -224,4 +198,5 @@ void EUSCIA2_IRQHandler(void)
             break;
         }
     }
+    ///puts("A2\n");
 }

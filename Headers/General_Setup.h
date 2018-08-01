@@ -29,6 +29,8 @@
 
 _Bool checkControlConditions(void);
 
+void systemStart(void);
+
 //TODO EK 7-14-2018 update the overall set of configs from a string
 void updateConfigString();
 
@@ -44,6 +46,8 @@ void RTC_setup(void);
 _Bool newConfigReceivedPC();
 
 void setDateTime();
+
+_Bool batteryLowCalc();
 
 // ST 7-19-2018 A helper function for converting an AM/PM hour to the 24-hour clock
 int convert12to24(int hour, _Bool pm);
