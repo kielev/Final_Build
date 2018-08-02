@@ -14,6 +14,7 @@
 volatile _Bool IridiumEn = 0;
 volatile _Bool GPSEn = 0;
 volatile _Bool VHFToggle = 0;
+volatile _Bool VHFStarted = 0;
 
 
 //Scheduling Globals

@@ -428,6 +428,8 @@ void memory_test()
     char testStr[100] = {'\0'};
     char sendString[340] = {'\0'};
 
+
+
     int i,x;
     for(i = 0; i < 5*SECTOR_CAPACITY; ++i)
     {
@@ -459,6 +461,12 @@ void memory_test()
 
         MAP_WDT_A_clearTimer();
 
+    }
+
+    while((end > 0)){
+        pullOldFix(sendString, 5);
+        printf("Iridium String: %s\n", sendString);
+        end = moveSentFix(5);
     }
     end = 5;
 
