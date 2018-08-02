@@ -13,8 +13,6 @@
 
 int main(void)
 {
-
-
     /* Stop Watchdog  */
     systemStart();
 
@@ -30,35 +28,49 @@ int main(void)
 
     while(1)
     {
+        // Checks if new configurations have been loaded based on web-based and/or wired GUI request
         if(updateConfig == true){
+            // Readout configuration parameters into a global string
             readout_config_params();
+            // Readout VHF, GPS, battery counters into globals
             readout_battery_counters();
+            // Clear the flag
             updateConfig = false;
         }
 
+        // If one minute has passed since VHF was initiated
         if(VHFStartCount >= 60){
+            // Enable VHF
             GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN7);
+            // Stop the SysTick timer
             DisableSysTick();
         }
 
+        // Run logic for determining which modules should be initiated
         if(checkControlConditions()){
             MAP_WDT_A_holdTimer();
+            // Check memory
             if(isMemoryFull()){
                 clearMemory();
             }
+            // Stop the watchdog before sleeping
             MAP_WDT_A_holdTimer();
             MAP_PCM_enableRudeMode();
             MAP_PCM_gotoLPM3();
+            // The code should re-enter here once woken up again -- start the watchdog timer and let the loop roll over to the next iteration
             MAP_WDT_A_startTimer();
         }
+        // Check if the PC hardwired GUI has initiated a change in configuration parameters
         if(newConfigReceivedPC())
         {
             updateConfigGlobal();
         }
+        // Check if the PC hardwired GUI is requesting that the next GPS string in memory be loaded
         if(PC_READY_DATA)
         {
             readout_memory_all();
         }
+        // Kick the dog
         MAP_WDT_A_clearTimer();
     }
 }
@@ -75,27 +87,35 @@ void RTC_C_IRQHandler(void)
 
     if (status & RTC_C_TIME_EVENT_INTERRUPT)
     {
+        // If normal battery status and GPS time has been hit, enable the GPS
         if(((SystemTime.hours % Config.GPS) == 0)  && BatteryLow == 0){
             GPSCount += Config.GTO;
             RMCSetTime = 0;
             GPSEn = 1;
         }
 
+        // Check which week we are on and compare it to the Iridium scheduling configuration
         if(((!(SystemTime.hours % Config.ICT)
                 && (((SystemTime.dayOfmonth-1) / 7) % Config.ITF == (Config.ITF-1)) // 1 - Every Week, 2 - 8-14,22-28, 3 - 15-21
                 && (SystemTime.dayOfWeek == Config.ITD)) || IridiumQuickRetry == true) && BatteryLow == 0){
+            // If an Iridium upload is called for, enable the module
             IridiumEn = 1;
             IridiumQuickRetry = false;
         }
 
+        // If the VST on-time is scheduled to begin now
         if((SystemTime.hours % Config.VST) == 0) {
+            // Turn on the VHF
             VHFToggle = 1;
+            // Check if VST/VET occurs on the same or consecutive days
             if(Config.VST < Config.VET)
                 VHFCount += Config.VET - Config.VST;
             else
                 VHFCount += (24-Config.VST) + Config.VET;
         }
+        // If the VST off-time is scheduled to end
         if((SystemTime.hours % Config.VET) == 0){
+            // Turn off the VHF
             VHFToggle = 1;
         }
     }
@@ -119,6 +139,7 @@ void SysTick_IRQHandler(void)
         }
     }
 
+    // Increment the VHF until it hits 60
     if (VHFStartCount < 60){
         VHFStartCount++;
     }
@@ -157,6 +178,7 @@ void EUSCIA1_IRQHandler(void)
 
     if (status & EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG)
     {
+        // Grab the most recently received character
         IridiumRXData = MAP_UART_receiveData(EUSCI_A1_BASE);
         //printf("%c", RXData);
         switch (IridiumRXData)
