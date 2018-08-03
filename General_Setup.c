@@ -64,6 +64,7 @@ _Bool checkControlConditions(){
         //GPS On
         GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
         printf("GTO: %d\n", Config.GTO);
+        puts("print test\n");
         EnableSysTick();
         FinalGPSData.HDOP = 10;
 

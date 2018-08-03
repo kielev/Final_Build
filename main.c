@@ -42,12 +42,12 @@ int main(void)
         }
 
         if(checkControlConditions()){
-            MAP_WDT_A_holdTimer();
             if(isMemoryFull()){
                 clearMemory();
             }
             MAP_WDT_A_holdTimer();
             MAP_PCM_enableRudeMode();
+            IOSetup();
             MAP_PCM_gotoLPM3();
             MAP_WDT_A_startTimer();
         }
