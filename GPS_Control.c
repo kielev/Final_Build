@@ -14,26 +14,33 @@ void GPSParse(){
 
     SystemTime = MAP_RTC_C_getCalendarTime();
 
+    // We are looking for the GGA string as our main source of information to parse from the GPS fix
     if(!strncmp(&GPSString[3], "GGA", 3) && strlen(GPSString) > 55){
+        // Grab the date
         sprintf(dateString, "%0.2d%0.2d%0.2d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
         GPSData.FixDate = atoi(dateString);
         strtok(GPSString,",");
+        // Grab the time
         GPSData.FixTime = atoi(strtok(NULL,","));
+        // Grab latitude/longitude
         GPSData.Lat = atof(strtok(NULL,","));
-        GPSData.LatDir = *strtok(NULL,",");
+        GPSData.LatDir = *strtok(NULL,","); // N/S
         GPSData.Lon = atof(strtok(NULL,","));
-        GPSData.LonDir = *strtok(NULL,",");
+        GPSData.LonDir = *strtok(NULL,","); // E/W
         strtok(NULL,",");
         strtok(NULL,",");
+        // Grab the accuracy
         GPSData.HDOP = atof(strtok(NULL,","));
     }
 
+    // We also parse the RMC string in order to determine the date, since this isn't available in the GGA string
     if(!strncmp(&GPSString[3], "RMC", 3) && strlen(GPSString) > 55  && RMCSetTime == 0){
         strtok(GPSString,",");
 
         tokString = strtok(NULL,",");
         strcpy(dateString, tokString);
 
+        // Grab the time while we're at it...
         if (strlen(dateString) == 6) {
             SetTime.hours   = (dateString[0]-'0') * 10 + (dateString[1]-'0');
             SetTime.minutes = (dateString[2]-'0') * 10 + (dateString[3]-'0');
@@ -50,12 +57,14 @@ void GPSParse(){
         tokString = strtok(NULL,",");
         strcpy(dateString, tokString);
 
+        // Grab the date
         if (strlen(dateString) == 6) {
             SetTime.dayOfmonth = (dateString[0]-'0') * 10 + (dateString[1]-'0');
             SetTime.month      = (dateString[2]-'0') * 10 + (dateString[3]-'0');
             SetTime.year       = (dateString[4]-'0') * 10 + (dateString[5]-'0') + 2000;
 
             RMCSetTime = 1;
+            // Set the RTC based on this time/date to keep it accurate in case of power downs, sleep mode, etc
             setDateTime();
         }
     }

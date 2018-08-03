@@ -5,9 +5,16 @@
  *      Author: kielev
  */
 
+#include <gpio.h>
+#include <interrupt.h>
+#include <msp432p401r.h>
+#include <msp432p401r_classic.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <uart.h>
 #include "Headers/Iridium_Control.h"
-
-
 
 //Function to send a string of any length up to max
 int sendIridiumString(char * String){
@@ -17,14 +24,20 @@ int sendIridiumString(char * String){
 
     printf("\nCommand: AT\n");
     Iridium_puts("AT\r");
+
+    // Wait until Iridium is ready with a new string
     while(IridiumGo == 0);
+
+    // Check for an AT string
     if(!strncmp("AT",IridiumString,2))
         IridiumGo = 0;
     else{
+        // If we are not getting this, an error/lockup is occurring
         printf("AT echo error %s\n", IridiumString);
         IridiumGo = 0;
     }
 
+    // Wait again until Iridium has provided a new string
     while(IridiumGo == 0);
     if(!strncmp("OK",IridiumString,2)){
         IridiumGo = 0;
@@ -34,8 +47,10 @@ int sendIridiumString(char * String){
         return 0;
     }
 
+    // Ask the Iridium is do it's thing
     printf("\nCommand: AT&K0\n");
     Iridium_puts("AT&K0\r");
+    // Wait for a response
     while(IridiumGo == 0);
     if(!strncmp("AT&K0",IridiumString,5))
         IridiumGo = 0;
@@ -44,6 +59,7 @@ int sendIridiumString(char * String){
         IridiumGo = 0;
     }
 
+    // Wait for an acknowledgment
     while(IridiumGo == 0);
     if(!strncmp("OK",IridiumString,2)){
         IridiumGo = 0;
@@ -53,6 +69,7 @@ int sendIridiumString(char * String){
         return 0;
     }
 
+    // We tell the Iridium we are ready to send a new message
     printf("\nCommand: AT+SBDWT\n");
     Iridium_puts("AT+SBDWT\r");
     while(IridiumGo == 0);
@@ -63,6 +80,7 @@ int sendIridiumString(char * String){
         IridiumGo = 0;
     }
 
+    // Wait for the Iridium to say we can send it a message
     while(IridiumGo == 0);
     if(!strncmp("READY",IridiumString,5)){
         IridiumGo = 0;
@@ -72,10 +90,11 @@ int sendIridiumString(char * String){
         return 0;
     }
 
-
+    // Send the message itself
     printf("\nCommand: message\n");
     Iridium_puts(String);
     while(IridiumGo == 0);
+    // We look for the $ character because we use it to indicate the start of a new data message
     if(!strncmp("$",IridiumString,1)){
         IridiumGo = 0;
     } else {
@@ -84,7 +103,7 @@ int sendIridiumString(char * String){
         return 0;
     }
 
-
+    // Check that it's good with our message
     while(IridiumGo == 0);
         if(!strncmp("0",IridiumString,1)){
             IridiumGo = 0;
@@ -93,7 +112,10 @@ int sendIridiumString(char * String){
             printf("Error return %s\n", IridiumString);
         }
 
+    // Kick the dog (sorry, buddy)
     MAP_WDT_A_clearTimer();
+
+    // Tell Iridium to go ahead and send that message
     printf("\nCommand: AT+SBDIX\n");
     Iridium_puts("AT+SBDIX\r");
     while(IridiumGo == 0);
@@ -109,6 +131,7 @@ int sendIridiumString(char * String){
         IridiumGo = 0;
     }
 
+    // Make sure Iridium is OK
     while(IridiumGo == 0);
     if(!strncmp("+SBDIX",IridiumString,6)){
         strcpy(SBDIX, IridiumString);
@@ -118,6 +141,7 @@ int sendIridiumString(char * String){
         IridiumGo = 0;
     }
 
+    // Check for end of the message before continuing
     while(IridiumGo == 0);
     if(!strncmp("\r",IridiumString,1)){
         IridiumGo = 0;
@@ -126,6 +150,7 @@ int sendIridiumString(char * String){
         printf("Error return %s\n", IridiumString);
     }
 
+    // Check Iridium again
     while(IridiumGo == 0);
     if(!strncmp("OK",IridiumString,2)){
         IridiumGo = 0;
@@ -134,6 +159,7 @@ int sendIridiumString(char * String){
         printf("Error message %s\n", IridiumString);
     }
 
+    // Ask Iridium for its current status (including if we have any messages waiting)
     printf("\nCommand: AT+SBDD0\n");
     Iridium_puts("AT+SBDD0\r");
     while(IridiumGo == 0);
@@ -152,6 +178,7 @@ int sendIridiumString(char * String){
         IridiumGo = 0;
     }
 
+    // Iridium will tell us with an error code if our message failed to send
     printf("message: %s --> ", SBDIX);
     tokString = strtok(SBDIX, ",");
     if(atoi(&tokString[8]) > 2){
@@ -164,9 +191,11 @@ int sendIridiumString(char * String){
 
     strtok(NULL, ",");
     tokString = strtok(NULL, ",");
+    // Check if a message is queued, awaiting for us to retrieve it from the Iridium system
     if(atoi(tokString) == 1){
         printf("message queued\n");
 
+        // Tell it to go ahead and give us that message
         Iridium_puts("AT+SBDRT\r");
         IridiumGo = 0;
         while(IridiumGo == 0);
@@ -177,6 +206,7 @@ int sendIridiumString(char * String){
             IridiumGo = 0;
         }
 
+        // Make sure it got our request and is good with it
         while(IridiumGo == 0);
         if(!strncmp("+SBDRT",IridiumString,6))
             IridiumGo = 0;
@@ -185,6 +215,7 @@ int sendIridiumString(char * String){
             IridiumGo = 0;
         }
 
+        // Check for the $ character indicating the start of an inbound parameter message
         while(IridiumGo == 0);
         if(!strncmp("$",IridiumString,1)){
             strcpy(ParameterString, IridiumString);
@@ -194,6 +225,7 @@ int sendIridiumString(char * String){
             IridiumGo = 0;
         }
 
+        // Check that Iridium is still OK
         while(IridiumGo == 0);
         if(!strncmp("OK",IridiumString,2)){
             IridiumGo = 0;
@@ -202,6 +234,7 @@ int sendIridiumString(char * String){
             printf("End Message Error %s\n", IridiumString);
         }
 
+        // Store that parameter message so we can update our internal configurations
         strcat(ParameterString,"\0");
         printf("Received Message - %s\n", ParameterString);
         return (ret+2);

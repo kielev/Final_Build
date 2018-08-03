@@ -14,6 +14,7 @@
 volatile _Bool IridiumEn = 0;
 volatile _Bool GPSEn = 0;
 volatile _Bool VHFToggle = 0;
+volatile _Bool VHFStarted = 0;
 
 
 //Scheduling Globals
@@ -47,7 +48,16 @@ volatile _Bool updateConfig = false;
 volatile uint8_t VHFSecOnCount = 0; //On startup, this gets incremented and is a "beacon" so they know the collar is on.
 
 
-volatile Configparameters Config = {4,2,1,0,0,1,9,12};
+volatile Configparameters Config = {
+         4              /**< GPS sample interval (1-24 hours) */
+        ,2              //GPS timeout (1-10 minutes)
+        ,1              //Iridium Transmission Frequency (1-weekly, 2-biweekly, 3 - monthly)
+        ,0              //Iridium transmission day (Sunday 0)
+        ,11              //Iridium connection start time (0-23 hour)
+        ,1              //Iridium connection retry (0-3)
+        ,13              //VHF broadcast start time (0-23 hour)
+        ,15              //VHF broadcast end time (0-23 hour)
+};
 volatile _Bool BatteryLow = 0;
 
 //GPS Globals

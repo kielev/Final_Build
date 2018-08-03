@@ -13,52 +13,80 @@
 
 int main(void)
 {
-
-
-    /* Stop Watchdog  */
+    /* Start Everything  */
     systemStart();
 
+    /* Update System Time */
     SystemTime = MAP_RTC_C_getCalendarTime();
 
-    printf("%0.2d:%0.2d:%0.2d\n", SystemTime.hours, SystemTime.minutes, SystemTime.seconds);
-
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
+    //printf("%0.2d:%0.2d:%0.2d\n", SystemTime.hours, SystemTime.minutes, SystemTime.seconds);
     //memory_test();
-    //GPSEn = true;
+    GPSEn = true;
     //IridiumEn = true;
     //return 1;
 
     while(1)
     {
+        // Checks if configurations need to be loaded based on wake up
         if(updateConfig == true){
+            // Readout configuration parameters into a global string
             readout_config_params();
+            // Readout VHF, GPS, battery counters into globals
             readout_battery_counters();
+            // Clear the flag
             updateConfig = false;
         }
 
-        if(VHFStartCount >= 60){
-            GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN7);
-            DisableSysTick();
+        //If VHF needs to be started
+        if(VHFStartCount == 0){
+            EnableSysTick();
+            GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN7);
         }
 
-        if(checkControlConditions()){
+        // If one minute has passed since VHF was initiated
+        else if(VHFStartCount == 60){
+            // Enable VHF
+            GPIO_setOutputHighOnPin(GPIO_PORT_P4, GPIO_PIN7);
+            // Stop the SysTick timer
+            DisableSysTick();
+            VHFStartCount++;
+        }
+
+        // Run logic for determining which modules should be initiated
+        else if(VHFStartCount >= 61 && checkControlConditions()){
+            MAP_WDT_A_holdTimer();
+            // Check memory
             if(isMemoryFull()){
                 clearMemory();
             }
-            MAP_WDT_A_holdTimer();
+
+            MAP_GPIO_setAsOutputPin(GPIO_PORT_P2, GPIO_PIN0); //Puts the enable pins for periph devices high so they're off
+            MAP_GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
+            MAP_GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN0);
+            MAP_GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN0);
+            disableIridiumUART(); //Disables UART channels and associated pins, trying to stay the most power efficient.
+            disableGPSUART();
+
+            // Stop the watchdog before sleeping
             MAP_PCM_enableRudeMode();
-            IOSetup();
             MAP_PCM_gotoLPM3();
+            // The code should re-enter here once woken up again -- start the watchdog timer and let the loop roll over to the next iteration
             MAP_WDT_A_startTimer();
+            initIridiumUART();
+            initGPSUART();
         }
+        // Check if the PC hardwired GUI has initiated a change in configuration parameters
         if(newConfigReceivedPC())
         {
             updateConfigGlobal();
         }
+        // Check if the PC hardwired GUI is requesting that the next GPS string in memory be loaded
         if(PC_READY_DATA)
         {
             readout_memory_all();
         }
+        // Kick the dog
         MAP_WDT_A_clearTimer();
     }
 }
@@ -75,28 +103,38 @@ void RTC_C_IRQHandler(void)
 
     if (status & RTC_C_TIME_EVENT_INTERRUPT)
     {
+        // If normal battery status and GPS time has been hit, enable the GPS
         if(((SystemTime.hours % Config.GPS) == 0)  && BatteryLow == 0){
             GPSCount += Config.GTO;
             RMCSetTime = 0;
             GPSEn = 1;
         }
 
+        // Check which week we are on and compare it to the Iridium scheduling configuration
         if(((!(SystemTime.hours % Config.ICT)
                 && (((SystemTime.dayOfmonth-1) / 7) % Config.ITF == (Config.ITF-1)) // 1 - Every Week, 2 - 8-14,22-28, 3 - 15-21
                 && (SystemTime.dayOfWeek == Config.ITD)) || IridiumQuickRetry == true) && BatteryLow == 0){
+            // If an Iridium upload is called for, enable the module
             IridiumEn = 1;
             IridiumQuickRetry = false;
         }
 
-        if((SystemTime.hours % Config.VST) == 0) {
+        // If the VST on-time is scheduled to begin now
+        if(SystemTime.hours == Config.VST) {
+            // Turn on the VHF
             VHFToggle = 1;
+            VHFStarted = 1;
+            // Check if VST/VET occurs on the same or consecutive days
             if(Config.VST < Config.VET)
                 VHFCount += Config.VET - Config.VST;
             else
                 VHFCount += (24-Config.VST) + Config.VET;
         }
-        if((SystemTime.hours % Config.VET) == 0){
+        // If the VST off-time is scheduled to end
+        if(SystemTime.hours == Config.VET && VHFStarted == 1){
+            // Turn off the VHF
             VHFToggle = 1;
+            VHFStarted = 0;
         }
     }
 }
@@ -107,18 +145,20 @@ void RTC_C_IRQHandler(void)
 void SysTick_IRQHandler(void)
 {
     //Counter for the total GPS on time
-    if (GPSEn == 1)
-    {
+    if (VHFStartCount < 60){
+            VHFStartCount++;
+    } else if (GPSEn == 1 && IridiumEn != 1) {
         GPSSecOnCount++;
         if(GPSSecOnCount / 60 > (Config.GTO-1)){
             GPSEn = 0;
             GPSSecOnCount = 0;
 
             //For Full System Test Remove For Operation
-            //IridiumEn = 1;
+            IridiumEn = 1;
         }
     }
 
+    // Increment the VHF until it hits 60
     if (VHFStartCount < 60){
         VHFStartCount++;
     }
@@ -133,15 +173,15 @@ void PORT4_IRQHandler(void)
     status = MAP_GPIO_getEnabledInterruptStatus(GPIO_PORT_P4);
     MAP_GPIO_clearInterruptFlag(GPIO_PORT_P4, status);
 
-    initClocks(); //Initialize clocks because we are waking up from sleep
+    /*initClocks(); //Initialize clocks because we are waking up from sleep
     MAP_WDT_A_startTimer(); //Start watchdog because we are waking up from sleep
+    initIridiumUART();
+    initGPSUART();*/
 
     //If the magnet is removed
     if (status & GPIO_PIN3)
     {
         MAP_RTC_C_startClock(); //Start the RTC
-        EnableSysTick();
-        GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN7);
         VHFStartCount = 0;
         updateConfig = true;
     }
@@ -157,6 +197,7 @@ void EUSCIA1_IRQHandler(void)
 
     if (status & EUSCI_A_UART_RECEIVE_INTERRUPT_FLAG)
     {
+        // Grab the most recently received character
         IridiumRXData = MAP_UART_receiveData(EUSCI_A1_BASE);
         //printf("%c", RXData);
         switch (IridiumRXData)

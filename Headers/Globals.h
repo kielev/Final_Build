@@ -15,12 +15,10 @@
 //Status Globals
 //Req is when a request for a device is on, enable is what actually turns on a pin or off. Enables are set by the StateMachine
 //which handles the requests and the priorites set out
-extern volatile _Bool IridiumReq;
 extern volatile _Bool IridiumEn;
-extern volatile _Bool GPSReq;
 extern volatile _Bool GPSEn;
-extern volatile _Bool VHFReq;
 extern volatile _Bool VHFToggle;
+extern volatile _Bool VHFStarted;
 
 
 //Scheduling Globals

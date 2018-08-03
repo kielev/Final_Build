@@ -47,10 +47,13 @@ void pullOldFix(char* String, int n){
 
 
    int i;
+
+   // In this loop, we are running through the messages available for transmission until all have been loaded/sent
    for(i = 0; i < n; ++i)
    {
        int nextTransmit = (i + TransmitFixCount[0]) * FIX_SIZE;
 
+       // Roll over to the next sector if we exceed its size
        if((nextTransmit + FIX_SIZE) > 4096)
        {
            TransmitFixCount[0] = 0;
@@ -60,6 +63,7 @@ void pullOldFix(char* String, int n){
        readout_fix(0x00020000 + (i * FIX_SIZE) + offsetTransmit);
        strcat(String, FixRead);
 
+       // Separate fixes with a colon (:) symbol
        if(i != n-1)
            strcat(String, ":");
    }
@@ -129,16 +133,17 @@ void clearMemory(void){
     TransmitFixCount[0] = *(uint8_t*) (0x0003E000);
     TransmitFixCount[1] = *(uint8_t*) (0x0003E001);
 
-    // Last place we stored a fix (TODO Check if this is right or if it's this + 1 more fix)
-    ReadFixCount[0] = *(uint8_t*) (0x0003F000); // should this 3E for transmission placeholder?
+    // Last place we stored a fix
+    ReadFixCount[0] = *(uint8_t*) (0x0003F000);
     ReadFixCount[1] = *(uint8_t*) (0x0003F001);
 
-
+    // Roll over the count at the start of a new sector
     if(TransmitFixCount[1] == 0){
         TransmitFixCount[1] = 2;
         TransmitFixCount[0] = 0;
     }
 
+    // Open the appropriate locations up for modification
     for(i = 0;i < TransmitFixCount[1];i++){
         FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, sector_array[i]);
     }
@@ -149,9 +154,8 @@ void clearMemory(void){
         FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, sector_array[i]);
     }
 
-    MAP_WDT_A_clearTimer();
     for(i=TransmitFixCount[1];i <= ReadFixCount[1]; i++){
-
+        MAP_WDT_A_clearTimer();
         for(loc = 0;loc < 4096;loc++){
             Save[loc] = *(uint8_t*)(0x00020000 + loc + (i * 4096));
         }
@@ -415,6 +419,7 @@ void readout_sector(unsigned startposition)
     SectorRead[4096] = '\0';
 }
 
+// Generates random GPS fixes and fills the memory. Used to test the functioning of memory -- not necessary to use at deployment
 void memory_test()
 {
     int end = 5;
@@ -422,25 +427,11 @@ void memory_test()
     char testStr[100] = {'\0'};
     char sendString[340] = {'\0'};
 
+
+
     int i,x;
     for(i = 0; i < 5*SECTOR_CAPACITY; ++i)
     {
-        if(i / 95 == 20 && i % 95 == 23){
-            while((end > 0)){
-                pullOldFix(sendString, 5);
-                printf("Iridium String: %s\n", sendString);
-                end = moveSentFix(5);
-            }
-            /*for(x = 0; x < 95; x += 5) {
-                pullOldFix(sendString, 5);
-                printf("Iridium String: %s\n", sendString);
-                end = moveSentFix(5);
-            }*/
-        }
-
-        /*if(i % 95 == 0)
-            printf("starting sector %d\n", i/95);*/
-
         if(isMemoryFull()){
             printf("memory clearing");
             clearMemory();
@@ -462,12 +453,6 @@ void memory_test()
         MAP_WDT_A_clearTimer();
 
     }
-    end = 5;
-    /*while((end > 0)){
-        pullOldFix(sendString, 5);
-        printf("Iridium String: %s\n", sendString);
-        end = moveSentFix(5);
-    }*/
 
     printf("end of memory test\n");
 }
