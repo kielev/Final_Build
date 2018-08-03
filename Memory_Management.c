@@ -154,9 +154,8 @@ void clearMemory(void){
         FlashCtl_unprotectSector(FLASH_MAIN_MEMORY_SPACE_BANK1, sector_array[i]);
     }
 
-    MAP_WDT_A_clearTimer();
     for(i=TransmitFixCount[1];i <= ReadFixCount[1]; i++){
-
+        MAP_WDT_A_clearTimer();
         for(loc = 0;loc < 4096;loc++){
             Save[loc] = *(uint8_t*)(0x00020000 + loc + (i * 4096));
         }
@@ -433,14 +432,6 @@ void memory_test()
     int i,x;
     for(i = 0; i < 5*SECTOR_CAPACITY; ++i)
     {
-        if(i / 95 == 20 && i % 95 == 23){
-            while((end > 0)){
-                pullOldFix(sendString, 5);
-                printf("Iridium String: %s\n", sendString);
-                end = moveSentFix(5);
-            }
-        }
-
         if(isMemoryFull()){
             printf("memory clearing");
             clearMemory();
@@ -462,13 +453,6 @@ void memory_test()
         MAP_WDT_A_clearTimer();
 
     }
-
-    while((end > 0)){
-        pullOldFix(sendString, 5);
-        printf("Iridium String: %s\n", sendString);
-        end = moveSentFix(5);
-    }
-    end = 5;
 
     printf("end of memory test\n");
 }

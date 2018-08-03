@@ -34,9 +34,9 @@ _Bool checkControlConditions(){
             MAP_WDT_A_clearTimer();
             // Grab oldesnt unread fixes
             pullOldFix(sendString, IRIDIUMFIXES);
-
+            printf("String: %s\n", sendString);
             // Check that the string is the appropriate length to send
-            if(strlen(sendString > 20)){
+            if(strlen(sendString) > 20){
                 // Loop until a successful connection has been made, limited by configured number of retries
                 while(retry < Config.ICR && condition == 0){
                     printf("String: %s\n", sendString);
@@ -143,10 +143,10 @@ void systemStart(){
 
     /** set for time when nothing will run */
     SetTime.hours = 11;
-    SetTime.minutes = 59;
+    SetTime.minutes = 10;
     SetTime.seconds = 00;
-    SetTime.dayOfmonth = 21;
-    SetTime.month = 7;
+    SetTime.dayOfmonth = 02;
+    SetTime.month = 8;
     SetTime.year = 2018;
 
     setDateTime();

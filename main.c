@@ -19,13 +19,10 @@ int main(void)
     /* Update System Time */
     SystemTime = MAP_RTC_C_getCalendarTime();
 
-    //printf("%0.2d:%0.2d:%0.2d\n", SystemTime.hours, SystemTime.minutes, SystemTime.seconds);
-
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
+    //printf("%0.2d:%0.2d:%0.2d\n", SystemTime.hours, SystemTime.minutes, SystemTime.seconds);
     //memory_test();
-
-
-    //GPSEn = true;
+    GPSEn = true;
     //IridiumEn = true;
     //return 1;
 
@@ -148,15 +145,16 @@ void RTC_C_IRQHandler(void)
 void SysTick_IRQHandler(void)
 {
     //Counter for the total GPS on time
-    if (GPSEn == 1)
-    {
+    if (VHFStartCount < 60){
+            VHFStartCount++;
+    } else if (GPSEn == 1 && IridiumEn != 1) {
         GPSSecOnCount++;
         if(GPSSecOnCount / 60 > (Config.GTO-1)){
             GPSEn = 0;
             GPSSecOnCount = 0;
 
             //For Full System Test Remove For Operation
-            //IridiumEn = 1;
+            IridiumEn = 1;
         }
     }
 
