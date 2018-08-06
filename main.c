@@ -21,7 +21,7 @@ int main(void)
 
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
     //printf("%0.2d:%0.2d:%0.2d\n", SystemTime.hours, SystemTime.minutes, SystemTime.seconds);
-    memory_test();
+    //memory_test();
     //GPSEn = true;
     //IridiumEn = true;
     //GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);

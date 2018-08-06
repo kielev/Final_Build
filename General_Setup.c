@@ -153,10 +153,10 @@ void systemStart(){
 
     /** set for time when nothing will run */
     SetTime.hours = 11;
-    SetTime.minutes = 59;
+    SetTime.minutes = 00;
     SetTime.seconds = 00;
     SetTime.dayOfmonth = 02;
-    SetTime.month = 7;
+    SetTime.month = 8;
     SetTime.year = 2018;
 
     setDateTime();

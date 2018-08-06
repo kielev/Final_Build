@@ -49,14 +49,14 @@ volatile uint8_t VHFSecOnCount = 0; //On startup, this gets incremented and is a
 
 
 volatile Configparameters Config = {
-         1              /**< GPS sample interval (1-24 hours) */
+         4              /**< GPS sample interval (1-24 hours) */
         ,2              //GPS timeout (1-10 minutes)
         ,1              //Iridium Transmission Frequency (1-weekly, 2-biweekly, 3 - monthly)
-        ,1              //Iridium transmission day (Sunday 0)
-        ,13              //Iridium connection start time (0-23 hour)
+        ,0              //Iridium transmission day (Sunday 0)
+        ,21              //Iridium connection start time (0-23 hour)
         ,1              //Iridium connection retry (0-3)
-        ,6              //VHF broadcast start time (0-23 hour)
-        ,7              //VHF broadcast end time (0-23 hour)
+        ,13              //VHF broadcast start time (0-23 hour)
+        ,15              //VHF broadcast end time (0-23 hour)
 };
 volatile _Bool BatteryLow = 0;
 
