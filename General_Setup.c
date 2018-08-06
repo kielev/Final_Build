@@ -11,15 +11,15 @@
 //overall function for control of program returns true for sleep or false to run again
 _Bool checkControlConditions(){
     char sendString[340] = {'\0'};
-    int condition = 0;
+    int condition;
     int moreUnsent = 0;
-    int retry = -1;
+    int retry;
 
     BatteryLow = batteryLowCalc();
 
     // This checks for a magnet on the Reed switch input, indicating the device should be put in deep sleep mode
     if (GPIO_getInputPinValue(GPIO_PORT_P4, GPIO_PIN3) == GPIO_INPUT_PIN_HIGH) {
-        puts("sleep 4\n");
+        //puts("sleep 4\n");
         IOSetup(); //Initializes all of the pins in the most efficient way possible to keep battery life okay.
         MAP_PCM_enableRudeMode();
         MAP_PCM_gotoLPM4(); //this is for storing it on a shelf for an extended period of time. Uses the least power
@@ -28,19 +28,27 @@ _Bool checkControlConditions(){
         return false;
     } else if (IridiumEn == 1) {
         //Iridium On
+        printf("Iridum: %d\n", SystemTime.hours);
         GPIO_setOutputHighOnPin(GPIO_PORT_P2, GPIO_PIN0);
         Delay1ms(4000);
+        Delay1ms(4000);
+        //Delay1ms(4000);
         do{
+            retry = 0;
+            condition = 0;
             MAP_WDT_A_clearTimer();
             // Grab oldesnt unread fixes
             pullOldFix(sendString, IRIDIUMFIXES);
-            printf("String: %s\n", sendString);
+            //printf("String: %s\n", sendString);
             // Check that the string is the appropriate length to send
             if(strlen(sendString) > 20){
                 // Loop until a successful connection has been made, limited by configured number of retries
-                while(retry < Config.ICR && condition == 0){
+                while(retry <= Config.ICR && condition == 0){
+                    Delay1ms(4000);
                     printf("String: %s\n", sendString);
                     condition = sendIridiumString(sendString);
+                    // Kick the dog (sorry, buddy)
+                    MAP_WDT_A_clearTimer();
                     IridiumCount++;
                     retry++;
                 }
@@ -70,8 +78,8 @@ _Bool checkControlConditions(){
     } else if (GPSEn == 1) {
         //GPS On
         GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
-        printf("GTO: %d\n", Config.GTO);
-        puts("print test\n");
+        printf("GPS: %d\n", SystemTime.hours);
+        //puts("print test\n");
         EnableSysTick();
         FinalGPSData.HDOP = 10;
 
@@ -89,7 +97,7 @@ _Bool checkControlConditions(){
                             , FinalGPSData.Lon, FinalGPSData.LonDir, FinalGPSData.HDOP);
                     printf("GPS: %s\n", CurrentFixSaveString);
                     // Keep this fix if the HDOP is better (lower) than the previously stored fix
-                    save_current_fix();
+                    //save_current_fix();
                 }
             }
         }
@@ -110,6 +118,7 @@ _Bool checkControlConditions(){
 
     } else if (VHFToggle == 1) {
         // Switch the VHF on/off if scheduled
+        printf("VHF: %d\n", SystemTime.hours);
         GPIO_toggleOutputOnPin(GPIO_PORT_P4, GPIO_PIN7);
         VHFToggle = 0;
     }
@@ -144,10 +153,10 @@ void systemStart(){
 
     /** set for time when nothing will run */
     SetTime.hours = 11;
-    SetTime.minutes = 10;
+    SetTime.minutes = 59;
     SetTime.seconds = 00;
     SetTime.dayOfmonth = 02;
-    SetTime.month = 8;
+    SetTime.month = 7;
     SetTime.year = 2018;
 
     setDateTime();

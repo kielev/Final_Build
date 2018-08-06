@@ -12,10 +12,11 @@ void GPSParse(){
     char dateString[7];
     char *tokString;
 
-    SystemTime = MAP_RTC_C_getCalendarTime();
 
     // We are looking for the GGA string as our main source of information to parse from the GPS fix
     if(!strncmp(&GPSString[3], "GGA", 3) && strlen(GPSString) > 55){
+
+        SystemTime = MAP_RTC_C_getCalendarTime();
         // Grab the date
         sprintf(dateString, "%0.2d%0.2d%0.2d", SystemTime.month, SystemTime.dayOfmonth, SystemTime.year-2000);
         GPSData.FixDate = atoi(dateString);
@@ -35,13 +36,14 @@ void GPSParse(){
 
     // We also parse the RMC string in order to determine the date, since this isn't available in the GGA string
     if(!strncmp(&GPSString[3], "RMC", 3) && strlen(GPSString) > 55  && RMCSetTime == 0){
+        //printf("%s\n", GPSString);
         strtok(GPSString,",");
 
         tokString = strtok(NULL,",");
         strcpy(dateString, tokString);
 
         // Grab the time while we're at it...
-        if (strlen(dateString) == 6) {
+        if (strlen(dateString) == 10) {
             SetTime.hours   = (dateString[0]-'0') * 10 + (dateString[1]-'0');
             SetTime.minutes = (dateString[2]-'0') * 10 + (dateString[3]-'0');
             SetTime.seconds = (dateString[4]-'0') * 10 + (dateString[5]-'0');

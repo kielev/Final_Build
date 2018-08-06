@@ -422,15 +422,12 @@ void readout_sector(unsigned startposition)
 // Generates random GPS fixes and fills the memory. Used to test the functioning of memory -- not necessary to use at deployment
 void memory_test()
 {
-    int end = 5;
     srand(time(0));
     char testStr[100] = {'\0'};
     char sendString[340] = {'\0'};
 
-
-
     int i,x;
-    for(i = 0; i < 5*SECTOR_CAPACITY; ++i)
+    for(i = 0; i < 6; ++i)
     {
         if(isMemoryFull()){
             printf("memory clearing");
@@ -449,6 +446,8 @@ void memory_test()
                             , GPSData.Lon, GPSData.LonDir, GPSData.HDOP);
                     //printf("%s\n", CurrentFixSaveString);
         save_current_fix();
+
+        sprintf(CurrentFixSaveString, "");
 
         MAP_WDT_A_clearTimer();
 

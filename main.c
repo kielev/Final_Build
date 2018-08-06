@@ -21,10 +21,10 @@ int main(void)
 
     // ST 7-21-2018 Remove this after testing that flash memory functions correctly
     //printf("%0.2d:%0.2d:%0.2d\n", SystemTime.hours, SystemTime.minutes, SystemTime.seconds);
-    //memory_test();
-    GPSEn = true;
+    memory_test();
+    //GPSEn = true;
     //IridiumEn = true;
-    //return 1;
+    //GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0);
 
     while(1)
     {
@@ -111,7 +111,7 @@ void RTC_C_IRQHandler(void)
         }
 
         // Check which week we are on and compare it to the Iridium scheduling configuration
-        if(((!(SystemTime.hours % Config.ICT)
+        if((((SystemTime.hours == Config.ICT)
                 && (((SystemTime.dayOfmonth-1) / 7) % Config.ITF == (Config.ITF-1)) // 1 - Every Week, 2 - 8-14,22-28, 3 - 15-21
                 && (SystemTime.dayOfWeek == Config.ITD)) || IridiumQuickRetry == true) && BatteryLow == 0){
             // If an Iridium upload is called for, enable the module
@@ -154,13 +154,8 @@ void SysTick_IRQHandler(void)
             GPSSecOnCount = 0;
 
             //For Full System Test Remove For Operation
-            IridiumEn = 1;
+            //IridiumEn = 1;
         }
-    }
-
-    // Increment the VHF until it hits 60
-    if (VHFStartCount < 60){
-        VHFStartCount++;
     }
 }
 
